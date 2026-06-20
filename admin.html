@@ -1,0 +1,1101 @@
+
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ApexStore Admin </title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js for Sales Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1', // Indigo
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            brand: {
+              50: '#eff6ff',
+              500: '#3b82f6', // Blue
+              600: '#2563eb',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Smooth scrolling and custom scrollbar */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+
+    .dark ::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Custom Toggle Switch styling */
+    .toggle-checkbox:checked {
+      right: 0;
+      border-color: #4f46e5;
+    }
+
+    .toggle-checkbox:checked+.toggle-label {
+      background-color: #4f46e5;
+    }
+
+    .size-btn.active {
+      background-color: #4f46e5;
+      color: white;
+      border-color: #4f46e5;
+    }
+  </style>
+</head>
+
+<body
+  class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex h-screen overflow-hidden transition-colors duration-300 font-sans">
+
+  <!-- Mobile Sidebar Overlay -->
+  <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-slate-900/50 dark:bg-slate-900/80 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside id="sidebar"
+    class="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col transition-all duration-300 z-50 flex-shrink-0 absolute md:relative h-full -translate-x-full md:translate-x-0">
+
+    <!-- Sidebar Header / Logo -->
+    <div class="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-700">
+      <div class="flex items-center gap-2 overflow-hidden">
+        <div class="relative w-8 h-8 flex-shrink-0">
+          <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm">
+            <path d="M35,35 C35,15 50,10 55,35" fill="none" class="stroke-slate-900 dark:stroke-white transition-colors"
+              stroke-width="4"></path>
+            <path d="M45,35 C45,15 65,10 65,35" fill="none" class="stroke-slate-900 dark:stroke-white transition-colors"
+              stroke-width="4"></path>
+            <path d="M15,35 L85,35 L95,95 L5,95 Z" class="fill-slate-900 dark:fill-white transition-colors"></path>
+            <path d="M50,45 L25,85 L40,85 L44,75 L56,75 L53,85 L70,85 Z"
+              class="fill-white dark:fill-slate-900 transition-colors"></path>
+            <path d="M50,55 L46,68 L54,68 Z" class="fill-slate-900 dark:fill-white transition-colors"></path>
+            <path d="M35,80 L75,60 L60,95 Z" class="fill-blue-500"></path>
+          </svg>
+        </div>
+        <div class="flex flex-col justify-center sidebar-text transition-opacity duration-300">
+          <div class="text-xl font-bold tracking-tight leading-none mb-0.5">
+            <span class="text-slate-900 dark:text-white transition-colors">Apex</span><span
+              class="text-blue-500">Store</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <div class="h-[1px] bg-slate-300 dark:bg-slate-600 flex-1"></div>
+            <span
+              class="text-[5px] tracking-[0.2em] text-slate-500 dark:text-slate-400 whitespace-nowrap uppercase font-semibold">Shop
+              More, Live Better</span>
+            <div class="h-[1px] bg-slate-300 dark:bg-slate-600 flex-1"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Mobile Close Btn -->
+      <button id="mobile-close-sidebar" class="md:hidden text-slate-500 hover:text-slate-800 dark:hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+      <p
+        class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 mt-4 sidebar-text">
+        Main Menu</p>
+
+      <a href="#dashboard"
+        class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-primary-50 dark:hover:bg-slate-700/50 hover:text-primary-600 dark:hover:text-white group">
+        <i data-lucide="layout-dashboard" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+        <span class="sidebar-text">Dashboard</span>
+      </a>
+
+      <a href="#products"
+        class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-primary-50 dark:hover:bg-slate-700/50 hover:text-primary-600 dark:hover:text-white group">
+        <i data-lucide="box" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+        <span class="sidebar-text flex-1">Products</span>
+        <span
+          class="sidebar-text bg-slate-100 dark:bg-slate-700 text-xs py-0.5 px-2 rounded-full text-slate-600 dark:text-slate-300"
+          id="nav-product-count">0</span>
+      </a>
+
+      <a href="#orders"
+        class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-primary-50 dark:hover:bg-slate-700/50 hover:text-primary-600 dark:hover:text-white group">
+        <i data-lucide="shopping-cart" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+        <span class="sidebar-text flex-1">Orders</span>
+
+      </a>
+
+      <a href="#customers"
+        class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-primary-50 dark:hover:bg-slate-700/50 hover:text-primary-600 dark:hover:text-white group">
+        <i data-lucide="users" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+        <span class="sidebar-text flex-1">Customer Registrations</span>
+      </a>
+
+      <a href="#logins"
+        class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-primary-50 dark:hover:bg-slate-700/50 hover:text-primary-600 dark:hover:text-white group">
+        <i class="w-5 h-5 group-hover:scale-110 transition-transform" data-lucide="key"></i>
+        <span class="sidebar-text">Customers Login Details</span>
+      </a>
+
+      <p
+        class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 mt-6 sidebar-text">
+        Analytics</p>
+
+      <a href="#reports"
+        class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-primary-50 dark:hover:bg-slate-700/50 hover:text-primary-600 dark:hover:text-white group">
+        <i class="w-5 h-5 group-hover:scale-110 transition-transform" data-lucide="bar-chart-2"></i>
+        <span class="sidebar-text">Reports</span>
+      </a>
+
+      <p
+        class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 mt-6 sidebar-text">
+        System</p>
+
+      <a href="#settings"
+        class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-primary-50 dark:hover:bg-slate-700/50 hover:text-primary-600 dark:hover:text-white group">
+        <i class="w-5 h-5 group-hover:scale-110 transition-transform" data-lucide="settings"></i>
+        <span class="sidebar-text">Settings</span>
+      </a>
+
+      <a href="#banner"
+        class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-primary-50 dark:hover:bg-slate-700/50 hover:text-primary-600 dark:hover:text-white group">
+        <i class="w-5 h-5 group-hover:scale-110 transition-transform" data-lucide="image"></i>
+        <span class="sidebar-text">Banner Management</span>
+      </a>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="p-4 border-t border-slate-200 dark:border-slate-700">
+      <button id="toggle-sidebar-btn"
+        class="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors hidden md:flex">
+        <i data-lucide="panel-left-close" id="sidebar-icon" class="w-5 h-5"></i>
+        <span class="sidebar-text">Hide </span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN CONTENT AREA ================= -->
+  <div class="flex-1 flex flex-col w-full h-full min-w-0 relative">
+
+    <!-- Top Navigation Bar -->
+    <header
+      class="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-4 sm:px-6 z-10 shadow-sm transition-colors">
+
+      <div class="flex items-center gap-4 flex-1">
+        <!-- Mobile Sidebar Toggle -->
+        <button id="mobile-menu-btn" class="md:hidden text-slate-500 hover:text-primary-600 transition-colors">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+
+        <!-- Global Search -->
+        <div class="relative hidden sm:block max-w-md w-full">
+          <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+          <input type="text" placeholder="Search orders, products, or customers..."
+            class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 dark:focus:ring-primary-500/50 transition-all text-slate-800 dark:text-slate-200 placeholder-slate-400">
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 sm:gap-4">
+        <!-- Theme Toggle -->
+        <button id="theme-toggle"
+          class="p-2 text-slate-500 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-slate-700 rounded-full transition-all">
+          <i data-lucide="moon" id="theme-icon" class="w-5 h-5"></i>
+        </button>
+
+
+        <!-- Back to Customer Page -->
+        <div class="flex items-center pl-2 border-l border-slate-200 dark:border-slate-700">
+          <a href="index.html"
+            class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 hover:bg-primary-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to customer page</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content Container -->
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50 dark:bg-slate-900 transition-colors">
+
+      <!-- VIEW: DASHBOARD -->
+      <section id="view-dashboard" class="view-section hidden fade-in space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Dashboard Overview</h1>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+          <!-- Revenue Card -->
+          <div
+            class="bg-gradient-to-br from-emerald-400 to-green-600 rounded-xl p-5 shadow-lg shadow-green-500/30 text-white relative overflow-hidden group">
+            <div
+              class="absolute -right-6 -top-6 bg-white/20 w-24 h-24 rounded-full group-hover:scale-110 transition-transform duration-500 blur-xl">
+            </div>
+            <div class="flex justify-between items-start relative z-10">
+              <div>
+                <p class="text-sm font-medium text-green-50">Total Revenue</p>
+                <h3 class="text-3xl font-bold mt-1 tracking-tight" id="dash-revenue">₹0.00</h3>
+              </div>
+              <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm shadow-sm">
+                <i data-lucide="indian-rupee" class="w-6 h-6 text-white"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Orders Card -->
+          <div
+            class="bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl p-5 shadow-lg shadow-blue-500/30 text-white relative overflow-hidden group">
+            <div
+              class="absolute -right-6 -top-6 bg-white/20 w-24 h-24 rounded-full group-hover:scale-110 transition-transform duration-500 blur-xl">
+            </div>
+            <div class="flex justify-between items-start relative z-10">
+              <div>
+                <p class="text-sm font-medium text-blue-50">Total Orders</p>
+                <h3 class="text-3xl font-bold mt-1 tracking-tight" id="dash-orders">0</h3>
+              </div>
+              <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm shadow-sm">
+                <i data-lucide="shopping-bag" class="w-6 h-6 text-white"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Products Card -->
+          <div
+            class="bg-gradient-to-br from-purple-400 to-fuchsia-600 rounded-xl p-5 shadow-lg shadow-purple-500/30 text-white relative overflow-hidden group">
+            <div
+              class="absolute -right-6 -top-6 bg-white/20 w-24 h-24 rounded-full group-hover:scale-110 transition-transform duration-500 blur-xl">
+            </div>
+            <div class="flex justify-between items-start relative z-10">
+              <div>
+                <p class="text-sm font-medium text-purple-50">Total Products</p>
+                <h3 class="text-3xl font-bold mt-1 tracking-tight" id="dash-products">0</h3>
+              </div>
+              <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm shadow-sm">
+                <i data-lucide="package" class="w-6 h-6 text-white"></i>
+              </div>
+            </div>
+            <p class="text-xs text-purple-100 mt-3 font-medium relative z-10 opacity-90">Active Products</p>
+          </div>
+
+          <!-- Customers Card -->
+          <div
+            class="bg-gradient-to-br from-orange-400 to-rose-500 rounded-xl p-5 shadow-lg shadow-orange-500/30 text-white relative overflow-hidden group">
+            <div
+              class="absolute -right-6 -top-6 bg-white/20 w-24 h-24 rounded-full group-hover:scale-110 transition-transform duration-500 blur-xl">
+            </div>
+            <div class="flex justify-between items-start relative z-10">
+              <div>
+                <p class="text-sm font-medium text-orange-50">Total Customers</p>
+                <h3 class="text-3xl font-bold mt-1 tracking-tight" id="dash-customers">0</h3>
+              </div>
+              <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm shadow-sm">
+                <i data-lucide="users" class="w-6 h-6 text-white"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts and Tables Area -->
+        <div id="dash-empty-state"
+          class="hidden text-center py-16 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+          <div
+            class="w-16 h-16 bg-primary-50 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="bar-chart-2" class="w-8 h-8 text-primary-500"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">No Analytics Yet</h3>
+          <p class="text-slate-500 dark:text-slate-400">Your sales reports and recent orders will appear here once your
+            Products get Ordered.</p>
+        </div>
+
+        <div id="dash-charts-area" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Chart -->
+          <div
+            class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
+            <h3 class="font-bold text-slate-900 dark:text-white mb-4">Sales Overview</h3>
+            <div class="h-64 w-full">
+              <canvas id="salesChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Recent Orders Mini -->
+          <div
+            class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
+            <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+              <h3 class="font-bold text-slate-900 dark:text-white">Recent Orders</h3>
+              <a href="#orders" class="text-sm text-primary-600 hover:text-primary-700 font-medium">View all</a>
+            </div>
+            <div class="flex-1 overflow-y-auto p-2" id="dash-recent-orders">
+              <!-- Injected by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: PRODUCTS -->
+      <section id="view-products" class="view-section hidden fade-in space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Products</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your catalog, pricing, and inventory.</p>
+          </div>
+          <a href="#add-product"
+            class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors shadow-md shadow-primary-500/20 flex items-center gap-2">
+            <i data-lucide="plus" class="w-4 h-4"></i> Add Product
+          </a>
+        </div>
+
+        <div
+          class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex gap-4">
+            <div class="relative flex-1 max-w-sm">
+              <i data-lucide="search"
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+              <input type="text" id="search-products" placeholder="Search products..."
+                class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50">
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse whitespace-nowrap">
+              <thead>
+                <tr
+                  class="bg-gradient-to-r from-purple-500 to-fuchsia-600 border-b border-purple-600 text-xs font-semibold text-white uppercase tracking-wider">
+                  <th class="px-6 py-4">Product</th>
+                  <th class="px-6 py-4">Category</th>
+                  <th class="px-6 py-4">Price</th>
+                  <th class="px-6 py-4">Stock</th>
+                  <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm" id="products-tbody">
+                <!-- JS Injection -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: ADD PRODUCT -->
+      <section id="view-add-product" class="view-section hidden fade-in space-y-6">
+        <form id="add-product-form" class="max-w-6xl mx-auto space-y-6 pb-10" onsubmit="return false;">
+
+          <!-- Header & Top Actions -->
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
+            <div>
+              <h1 class="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Add New Clothing</h1>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Create a new product listing with detailed
+                specifications.</p>
+            </div>
+            <div class="flex gap-3">
+              <button type="button"
+                class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
+                Save Draft
+              </button>
+              <button type="button" onclick="publishNewProduct()"
+                class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors shadow-md flex items-center gap-2">
+                <i data-lucide="upload-cloud" class="w-4 h-4"></i> Publish Product
+              </button>
+            </div>
+          </div>
+
+          <!-- 2-Column Layout -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- LEFT COLUMN (Main Info) -->
+            <div class="lg:col-span-2 space-y-6">
+
+              <!-- Basic Information -->
+              <div
+                class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                  <i data-lucide="info" class="w-5 h-5 text-slate-400"></i> Basic Information
+                </h2>
+                <div class="space-y-4 text-sm">
+                  <div>
+                    <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Product Name <span
+                        class="text-red-500">*</span></label>
+                    <input type="text" id="new-prod-title" placeholder="Enter the product name"
+                      class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors dark:text-white outline-none">
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Brand</label>
+                      <input type="text" placeholder="Enter brand name"
+                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors dark:text-white outline-none">
+                    </div>
+                    <div>
+                      <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">SKU</label>
+                      <div class="flex">
+                        <input type="text" id="sku-field" value="CLO-2026-X89" readonly
+                          class="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-600 rounded-l-lg text-slate-500 dark:text-slate-400 font-mono outline-none">
+                        <button type="button"
+                          onclick="document.getElementById('sku-field').value='CLO-'+Date.now().toString().slice(-6)"
+                          class="px-3 border border-l-0 border-slate-300 dark:border-slate-600 rounded-r-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors">
+                          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Category</label>
+                      <select id="new-prod-category"
+                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors dark:text-white outline-none appearance-none">
+                        <option value="Men's Clothing">Mens</option>
+                        <option value="Women's Clothing">Womens</option>
+                        <option value="Unisex">Unisex</option>
+                        <option value="Accessories">Accessories</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Subcategory</label>
+                      <select
+                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors dark:text-white outline-none appearance-none">
+                        <option>T-Shirts & Tops</option>
+                        <option>Hoodies & Sweatshirts</option>
+                        <option>Outerwear & Jackets</option>
+                        <option>Trousers & Bottoms</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                    <textarea id="new-prod-desc" rows="5" placeholder="Detailed product description..."
+                      class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors dark:text-white outline-none resize-y"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Product Images (Drag & Drop) -->
+              <div
+                class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                  <i data-lucide="image" class="w-5 h-5 text-slate-400"></i> Product Gallery
+                </h2>
+                <div
+                  class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 flex flex-col items-center justify-center text-center bg-slate-50 dark:bg-slate-900/30 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group relative overflow-hidden">
+                  <input type="file" id="product-image-upload"
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" multiple>
+                  <div
+                    class="w-14 h-14 bg-white dark:bg-slate-800 shadow-sm rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <i data-lucide="upload-cloud" class="w-6 h-6 text-primary-500"></i>
+                  </div>
+                  <p class="font-medium text-slate-700 dark:text-slate-300">Click to upload or drag and drop</p>
+                  <p class="text-xs text-slate-500 mt-1">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+                </div>
+
+                <!-- Image Previews -->
+                <div id="product-image-previews" class="grid grid-cols-4 sm:grid-cols-5 gap-4 mt-4 empty:hidden">
+                  <!-- JS will populate this -->
+                </div>
+              </div>
+
+              <!-- Variants (Size & Color) -->
+              <div
+                class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                  <i data-lucide="layers" class="w-5 h-5 text-slate-400"></i> Variants & Options
+                </h2>
+
+                <div class="space-y-6 text-sm">
+                  <!-- Sizes -->
+                  <div>
+                    <label class="block font-medium text-slate-700 dark:text-slate-300 mb-2">Available Sizes</label>
+                    <div class="flex flex-wrap gap-3">
+                      <button type="button"
+                        class="size-btn w-10 h-10 rounded-md border border-slate-300 dark:border-slate-600 flex items-center justify-center font-medium text-slate-600 dark:text-slate-300 hover:border-primary-500 transition-colors">XS</button>
+                      <button type="button"
+                        class="size-btn active w-10 h-10 rounded-md border border-slate-300 dark:border-slate-600 flex items-center justify-center font-medium text-slate-600 dark:text-slate-300 hover:border-primary-500 transition-colors">S</button>
+                      <button type="button"
+                        class="size-btn active w-10 h-10 rounded-md border border-slate-300 dark:border-slate-600 flex items-center justify-center font-medium text-slate-600 dark:text-slate-300 hover:border-primary-500 transition-colors">M</button>
+                      <button type="button"
+                        class="size-btn active w-10 h-10 rounded-md border border-slate-300 dark:border-slate-600 flex items-center justify-center font-medium text-slate-600 dark:text-slate-300 hover:border-primary-500 transition-colors">L</button>
+                      <button type="button"
+                        class="size-btn w-10 h-10 rounded-md border border-slate-300 dark:border-slate-600 flex items-center justify-center font-medium text-slate-600 dark:text-slate-300 hover:border-primary-500 transition-colors">XL</button>
+                      <button type="button"
+                        class="size-btn w-10 h-10 rounded-md border border-slate-300 dark:border-slate-600 flex items-center justify-center font-medium text-slate-600 dark:text-slate-300 hover:border-primary-500 transition-colors">XXL</button>
+                    </div>
+                  </div>
+
+                  <!-- Colors -->
+                  <div>
+                    <label class="block font-medium text-slate-700 dark:text-slate-300 mb-2">Available Colors</label>
+                    <div id="product-colors-container" class="flex flex-wrap gap-3 items-center">
+                      <label id="color-picker-label"
+                        class="w-8 h-8 rounded-full border border-dashed border-slate-400 flex items-center justify-center text-slate-500 hover:text-primary-600 hover:border-primary-500 transition-colors cursor-pointer relative overflow-hidden order-last">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <input type="color" id="color-picker-input"
+                          class="absolute -inset-4 w-16 h-16 opacity-0 cursor-pointer">
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Specifications -->
+              <div
+                class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                  <i data-lucide="list-checks" class="w-5 h-5 text-slate-400"></i> Specifications
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <label
+                      class="block text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider font-semibold">Material</label>
+                    <input type="text" value="100% Organic Cotton"
+                      class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg outline-none dark:text-white">
+                  </div>
+                  <div>
+                    <label
+                      class="block text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider font-semibold">Fit
+                      Type</label>
+                    <select
+                      class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg outline-none dark:text-white">
+                      <option>Oversized Fit</option>
+                      <option>Regular Fit</option>
+                      <option>Slim Fit</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      class="block text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider font-semibold">Sleeve
+                      Type</label>
+                    <select
+                      class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg outline-none dark:text-white">
+                      <option>Long Sleeve</option>
+                      <option>Short Sleeve</option>
+                      <option>Sleeveless</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      class="block text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider font-semibold">Neck
+                      Type</label>
+                    <input type="text" value="Crew Neck"
+                      class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg outline-none dark:text-white">
+                  </div>
+                  <div>
+                    <label
+                      class="block text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider font-semibold">Occasion</label>
+                    <input type="text" value="Casual Wear"
+                      class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg outline-none dark:text-white">
+                  </div>
+                  <div>
+                    <label
+                      class="block text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider font-semibold">Origin</label>
+                    <input type="text" value="Portugal"
+                      class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg outline-none dark:text-white">
+                  </div>
+                  <div class="md:col-span-2 lg:col-span-3">
+                    <label
+                      class="block text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider font-semibold">Washing
+                      Instructions</label>
+                    <input type="text" value="Machine wash cold. Do not tumble dry."
+                      class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg outline-none dark:text-white">
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN (Pricing, Inventory, Visibility) -->
+            <div class="space-y-6">
+
+              <!-- Pricing Card -->
+              <div
+                class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                  <i data-lucide="tag" class="w-5 h-5 text-slate-400"></i> Pricing Setup
+                </h2>
+                <div class="space-y-4 text-sm">
+                  <div>
+                    <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Original Price (₹)</label>
+                    <input type="number" id="price-original" placeholder="0.00"
+                      class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-white">
+                  </div>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Discount (%)</label>
+                      <input type="number" id="price-discount" value="0"
+                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-white">
+                    </div>
+                    <div>
+                      <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Tax / GST (%)</label>
+                      <input type="number" value="10"
+                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-white">
+                    </div>
+                  </div>
+                  <div class="pt-3 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                    <span class="font-bold text-slate-900 dark:text-white">Final Selling Price:</span>
+                    <span class="text-xl font-bold text-primary-600 dark:text-primary-400" id="price-final">₹0.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Inventory Card -->
+              <div
+                class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                  <i data-lucide="package" class="w-5 h-5 text-slate-400"></i> Inventory
+                </h2>
+                <div class="space-y-4 text-sm">
+                  <div>
+                    <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Total Stock
+                      Quantity</label>
+                    <input type="number" value="150"
+                      class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-white">
+                  </div>
+                  <div>
+                    <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Low Stock Alert
+                      Level</label>
+                    <input type="number" value="10"
+                      class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-white">
+                  </div>
+                  <div>
+                    <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Availability Status</label>
+                    <select
+                      class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-white appearance-none">
+                      <option>In Stock</option>
+                      <option>Out of Stock</option>
+                      <option>Pre-order</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Visibility & Status -->
+              <div
+                class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                  <i data-lucide="eye" class="w-5 h-5 text-slate-400"></i> Product Visibility
+                </h2>
+
+                <div class="space-y-4">
+                  <div>
+                    <label class="block font-medium text-slate-700 dark:text-slate-300 mb-2 text-sm">Publishing
+                      Status</label>
+                    <div class="flex gap-2">
+                      <button type="button"
+                        class="flex-1 py-1.5 border border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 rounded-md text-sm font-semibold transition-colors">Active</button>
+                      <button type="button"
+                        class="flex-1 py-1.5 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 rounded-md text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Draft</button>
+                      <button type="button"
+                        class="flex-1 py-1.5 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 rounded-md text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Hidden</button>
+                    </div>
+                  </div>
+
+                  <div class="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+                    <!-- Toggle 1 -->
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="font-medium text-sm text-slate-900 dark:text-white">Featured Product</p>
+                        <p class="text-xs text-slate-500">Show on homepage hero section</p>
+                      </div>
+                      <div
+                        class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="toggle" id="toggle-feat"
+                          class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-slate-300 appearance-none cursor-pointer transition-all duration-300" />
+                        <label for="toggle-feat"
+                          class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 cursor-pointer transition-colors duration-300"></label>
+                      </div>
+                    </div>
+
+                    <!-- Toggle 2 -->
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="font-medium text-sm text-slate-900 dark:text-white">New Arrival Tag</p>
+                        <p class="text-xs text-slate-500">Add badge to product card</p>
+                      </div>
+                      <div
+                        class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" checked name="toggle" id="toggle-new"
+                          class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-primary-500 appearance-none cursor-pointer transition-all duration-300" />
+                        <label for="toggle-new"
+                          class="toggle-label block overflow-hidden h-5 rounded-full bg-primary-500 cursor-pointer transition-colors duration-300"></label>
+                      </div>
+                    </div>
+
+                    <!-- Toggle 3 -->
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="font-medium text-sm text-slate-900 dark:text-white">Best Seller</p>
+                        <p class="text-xs text-slate-500">Highlight in popular category</p>
+                      </div>
+                      <div
+                        class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="toggle" id="toggle-best"
+                          class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-slate-300 appearance-none cursor-pointer transition-all duration-300" />
+                        <label for="toggle-best"
+                          class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 cursor-pointer transition-colors duration-300"></label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- VIEW: ORDERS -->
+      <section id="view-orders" class="view-section hidden fade-in space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Orders</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Track and manage customer orders.</p>
+          </div>
+          <!-- Calendar Date Filter -->
+          <div
+            class="flex items-center gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 shadow-sm">
+            <i data-lucide="calendar" class="w-5 h-5 text-indigo-500"></i>
+            <div class="flex flex-col">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Filter by Date</span>
+              <input type="date" id="order-date-filter"
+                class="bg-transparent text-sm font-semibold text-slate-700 dark:text-slate-200 outline-none cursor-pointer border-none p-0 focus:ring-0">
+            </div>
+            <button
+              class="ml-2 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-red-500 transition-colors"
+              onclick="document.getElementById('order-date-filter').value=''" title="Clear Date">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div
+          class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse whitespace-nowrap">
+              <thead>
+                <tr
+                  class="bg-gradient-to-r from-blue-500 to-indigo-600 border-b border-blue-600 text-xs font-semibold text-white uppercase tracking-wider">
+                  <th class="px-6 py-4">Order ID</th>
+                  <th class="px-6 py-4">Customer</th>
+                  <th class="px-6 py-4">Shipping & Payment</th>
+                  <th class="px-6 py-4">Date</th>
+                  <th class="px-6 py-4">Status</th>
+                  <th class="px-6 py-4 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm" id="orders-tbody">
+                <!-- JS Injection -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-logins" class="view-section hidden fade-in space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Login Details</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Track customer logins.</p>
+          </div>
+          <button onclick="downloadLoginsCSV()"
+            class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors shadow-md flex items-center gap-2">
+            <i data-lucide="download" class="w-4 h-4"></i> Download CSV
+          </button>
+        </div>
+
+        <div
+          class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse whitespace-nowrap">
+              <thead>
+                <tr
+                  class="bg-gradient-to-r from-emerald-500 to-teal-600 border-b border-emerald-600 text-xs font-semibold text-white uppercase tracking-wider">
+                  <th class="px-6 py-4">Name</th>
+                  <th class="px-6 py-4">Email</th>
+                  <th class="px-6 py-4">Time</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm" id="logins-tbody">
+                <!-- JS Injection -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- OTHER MOCK VIEWS -->
+      <section id="view-customers" class="view-section hidden fade-in space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Customer Registration Details</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">View manually registered customers.</p>
+          </div>
+        </div>
+
+        <div
+          class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse whitespace-nowrap">
+              <thead>
+                <tr
+                  class="bg-gradient-to-r from-pink-500 to-rose-600 border-b border-pink-600 text-xs font-semibold text-white uppercase tracking-wider">
+                  <th class="px-6 py-4">Name</th>
+                  <th class="px-6 py-4">Email</th>
+                  <th class="px-6 py-4">Phone</th>
+                  <th class="px-6 py-4">Gender</th>
+                  <th class="px-6 py-4">Date Registered</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm" id="customers-tbody">
+                <!-- JS Injection -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-reports" class="view-section hidden fade-in space-y-6">
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Analytics & Reports</h1>
+        <div
+          class="p-8 text-center bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+          <i data-lucide="bar-chart-2" class="w-12 h-12 mx-auto text-slate-400 mb-4"></i>
+          <p class="text-slate-500">Advanced reports module coming soon.</p>
+        </div>
+      </section>
+
+      <section id="view-settings" class="view-section hidden fade-in space-y-6">
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Settings</h1>
+        <div
+          class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 max-w-2xl">
+          <h3 class="font-bold text-lg mb-4 text-slate-900 dark:text-white">Store Actions</h3>
+          <div class="flex gap-4">
+            <div class="flex-1">
+              <button onclick="showConfirmModal('Factory Reset Database', 'Are you absolutely sure you want to factory reset? This will delete ALL products and orders and cannot be undone.', 'factoryReset')"
+                class="px-4 py-2 w-full bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
+                <i data-lucide="trash-2" class="w-4 h-4"></i> Factory Reset Database
+              </button>
+              <p class="text-[11px] text-slate-500 mt-2 text-center">Deletes all products, orders & configs.</p>
+            </div>
+            <div class="flex-1">
+              <button onclick="showConfirmModal('Reset Revenue Count', 'Are you sure you want to reset the Dashboard Revenue to ₹0.00? Your existing orders will NOT be deleted.', 'resetRevenue')"
+                class="px-4 py-2 w-full bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset Revenue Count
+              </button>
+              <p class="text-[11px] text-slate-500 mt-2 text-center">Resets dashboard revenue back to ₹0.00.</p>
+            </div>
+          </div>
+          <h3 class="font-bold text-lg mt-8 mb-4 text-slate-900 dark:text-white">Customer Data</h3>
+          <div class="flex gap-4">
+            <div class="flex-1">
+              <button onclick="showConfirmModal('Reset Login Details', 'Are you sure you want to clear all customer login records?', 'resetLogins')"
+                class="px-4 py-2 w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
+                <i data-lucide="users-x" class="w-4 h-4"></i> Reset Customer Logins
+              </button>
+              <p class="text-[11px] text-slate-500 mt-2 text-center">Clears all tracked customer login history.</p>
+            </div>
+            <div class="flex-1"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BANNER MANAGEMENT SECTION -->
+      <section id="view-banner" class="view-section hidden fade-in space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Banner Management</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Configure the main hero banner shown on the storefront.</p>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 max-w-2xl">
+          <form id="banner-form" class="space-y-4" onsubmit="saveBannerSettings(event)">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-4">
+              <label class="font-medium text-slate-700 dark:text-slate-300">Enable Banner</label>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="banner-enabled" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-primary-600"></div>
+              </label>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Banner Title</label>
+              <input type="text" id="banner-title" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors dark:text-white" required>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Banner Description</label>
+              <textarea id="banner-desc" rows="3" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors dark:text-white" required></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Banner Image Upload</label>
+              <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 flex flex-col items-center justify-center text-center bg-slate-50 dark:bg-slate-900/30 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors cursor-pointer relative overflow-hidden group">
+                <input type="file" id="banner-image-upload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*">
+                <div class="w-12 h-12 bg-white dark:bg-slate-800 shadow-sm rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                  <i data-lucide="upload-cloud" class="w-5 h-5 text-primary-500"></i>
+                </div>
+                <p class="font-medium text-slate-700 dark:text-slate-300 text-sm">Click to upload banner image</p>
+                <p class="text-xs text-slate-500 mt-1">Recommended size: 1920x600px</p>
+              </div>
+              
+              <!-- Banner Image Preview -->
+              <div id="banner-image-preview-container" class="mt-4 hidden relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 h-32 sm:h-48">
+                <img id="banner-image-preview" src="" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                  <button type="button" id="remove-banner-image-btn" class="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors shadow-lg"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-4 flex justify-end">
+              <button type="submit" class="px-5 py-2.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg shadow-sm transition-colors">Save Banner</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- Product Modal -->
+  <div id="product-modal"
+    class="fixed inset-0 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm modal-overlay"></div>
+    <div
+      class="relative bg-white dark:bg-slate-800 w-full max-w-lg rounded-xl shadow-2xl scale-95 transition-transform duration-300"
+      id="product-modal-card">
+      <div class="flex justify-between items-center p-5 border-b border-slate-200 dark:border-slate-700">
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white" id="product-modal-title">Add New Product</h3>
+        <button class="text-slate-400 hover:text-slate-600 dark:hover:text-white modal-close">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="product-form" class="p-5 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Product Title</label>
+          <input type="text" id="prod-title" required
+            class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors dark:text-white">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Price (₹)</label>
+            <input type="number" step="0.01" id="prod-price" required
+              class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors dark:text-white">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Category</label>
+            <select id="prod-category"
+              class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors dark:text-white">
+              <option value="Outerwear">Outerwear</option>
+              <option value="Tops">Tops</option>
+              <option value="Bottoms">Bottoms</option>
+              <option value="Footwear">Footwear</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Image URL</label>
+          <input type="url" id="prod-image" placeholder="https://..."
+            class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors dark:text-white">
+        </div>
+        <div class="pt-4 flex justify-end gap-3 border-t border-slate-200 dark:border-slate-700">
+          <button type="button"
+            class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors modal-close">Cancel</button>
+          <button type="submit"
+            class="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg shadow-sm transition-colors">Save
+            Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirm-modal"
+    class="fixed inset-0 z-[60] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeConfirmModal()"></div>
+    <div
+      class="relative bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-2xl scale-95 transition-transform duration-300 p-6 text-center border border-slate-200 dark:border-slate-700"
+      id="confirm-modal-card">
+      <div class="w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+        <i data-lucide="alert-triangle" class="w-8 h-8 text-yellow-600 dark:text-yellow-400"></i>
+      </div>
+      <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2" id="confirm-modal-title">Are you sure?</h3>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mb-6" id="confirm-modal-desc">This action cannot be undone.</p>
+      <div class="flex gap-3 w-full">
+        <button onclick="closeConfirmModal()"
+          class="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-medium transition-colors">
+          Cancel
+        </button>
+        <button id="confirm-modal-btn"
+          class="flex-1 px-4 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl font-medium transition-colors shadow-md shadow-yellow-500/20">
+          Yes, Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase integration layer (must load before admin.js) -->
+  <script src="supabase.js"></script>
+  <script src="admin.js?v=6"></script>
+</body>
+
+</html>

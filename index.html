@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ApexStore | Customer Storefront</title>
+
+  <!-- Google Fonts - Inter for Professional Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Sign-In SDK -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            // Nordic Minimalist Palette (Pure Monochrome & Slate/Zinc)
+            zinc: {
+              50: '#fafafa',
+              100: '#f4f4f5',
+              200: '#e4e4e7',
+              300: '#d4d4d8',
+              400: '#a1a1aa',
+              500: '#71717a',
+              600: '#52525b',
+              700: '#3f3f46',
+              800: '#27272a',
+              900: '#18181b',
+              950: '#09090b',
+            },
+            darkBg: '#09090b',      // Pure black-zinc background
+            darkCard: '#18181b',    // Zinc 900
+            darkBorder: '#27272a',  // Zinc 800
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Transitions */
+    .theme-transition {
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+  </style>
+</head>
+
+<body
+  class="h-full bg-white dark:bg-darkBg text-zinc-900 dark:text-zinc-100 font-sans antialiased theme-transition flex flex-col">
+
+
+  <!-- NAVIGATION HEADER -->
+  <header
+    class="sticky top-0 bg-white/95 dark:bg-darkBg/95 backdrop-blur-md border-b border-zinc-200 dark:border-darkBorder z-40 transition-colors">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
+      <!-- Left side: Hamburger button + Logo -->
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <!-- Hamburger Menu Button -->
+        <button id="menu-toggle-btn"
+          class="p-2 -ml-2 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          title="Open Menu">
+          <i data-lucide="menu" class="w-4.5 h-4.5"></i>
+        </button>
+
+        <!-- Logo -->
+        <a href="index.html" class="flex items-center gap-2.5 group">
+          <div class="relative w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0">
+            <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">
+              <path d="M35,35 C35,15 50,10 55,35" fill="none"
+                class="stroke-zinc-900 dark:stroke-white transition-colors" stroke-width="4"></path>
+              <path d="M45,35 C45,15 65,10 65,35" fill="none"
+                class="stroke-zinc-900 dark:stroke-white transition-colors" stroke-width="4"></path>
+              <path d="M15,35 L85,35 L95,95 L5,95 Z" class="fill-zinc-900 dark:fill-white transition-colors"></path>
+              <path d="M50,45 L25,85 L40,85 L44,75 L56,75 L53,85 L70,85 Z"
+                class="fill-white dark:fill-zinc-900 transition-colors"></path>
+              <path d="M50,55 L46,68 L54,68 Z" class="fill-zinc-900 dark:fill-white transition-colors"></path>
+              <path d="M35,80 L75,60 L60,95 Z" class="fill-blue-500"></path>
+            </svg>
+          </div>
+          <div class="flex flex-col justify-center">
+            <div class="text-xl sm:text-2xl font-bold tracking-tight leading-none mb-0.5">
+              <span class="text-zinc-900 dark:text-white transition-colors">Apex</span><span
+                class="text-blue-500">Store</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <div class="h-[1px] bg-zinc-300 dark:bg-zinc-600 flex-1"></div>
+              <span
+                class="text-[5px] sm:text-[6px] tracking-[0.2em] text-zinc-500 dark:text-zinc-400 whitespace-nowrap uppercase font-semibold">Shop
+                More, Live Better</span>
+              <div class="h-[1px] bg-zinc-300 dark:bg-zinc-600 flex-1"></div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Center: Big, Visible Search Bar -->
+      <div class="flex-1 max-w-xl mx-1 sm:mx-6 relative">
+        <i data-lucide="search" class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input type="text" id="search-input" placeholder="Search catalog..."
+          class="w-full pl-9 pr-4 py-2.5 text-sm bg-zinc-100 dark:bg-zinc-900 border-none rounded-full focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500 transition-colors">
+      </div>
+
+      <!-- Nav Actions -->
+      <div class="flex items-center gap-1 sm:gap-4 flex-shrink-0">
+        <!-- Theme Toggle -->
+        <button id="theme-toggle-btn"
+          class="p-2 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          title="Toggle Theme">
+          <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Cart Indicator -->
+        <div class="relative">
+          <button id="cart-btn"
+            class="p-2 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors relative">
+            <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+            <span
+              class="absolute top-1.5 right-1.5 w-3.5 h-3.5 bg-black dark:bg-white text-[8px] font-bold text-white dark:text-black rounded-full flex items-center justify-center border border-white dark:border-darkBg animate-pulse"
+              id="cart-count">0</span>
+          </button>
+        </div>
+
+        <!-- User Menu (Dropdown trigger) -->
+        <div class="flex items-center gap-2">
+          <!-- Dedicated My Orders Button (Hidden until logged in) -->
+          <button id="nav-orders-btn"
+            class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white dark:bg-darkCard hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-darkBorder text-[10px] font-bold uppercase tracking-wider rounded-md transition-colors">
+            <i data-lucide="package" class="w-3.5 h-3.5"></i>
+            <span>My Orders</span>
+          </button>
+
+          <div class="relative">
+            <button id="nav-signin-btn" type="button"
+              class="inline-flex items-center gap-1.5 px-2 sm:px-3.5 py-1.5 bg-white dark:bg-darkCard hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-darkBorder text-[10px] font-bold uppercase tracking-wider rounded-md transition-colors">
+              <i data-lucide="user" class="w-3.5 h-3.5"></i>
+              <span class="hidden sm:inline">Sign In</span>
+            </button>
+
+            <div id="user-dropdown"
+              class="hidden absolute right-0 mt-2 w-40 bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder rounded shadow-xl py-1.5 z-50 text-[9px] font-bold uppercase tracking-wider">
+              <button id="btn-show-orders"
+                class="w-full text-left px-4 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-750 dark:text-zinc-300 transition-colors flex items-center gap-2">
+                <i data-lucide="package" class="w-3.5 h-3.5"></i>
+                My Orders
+              </button>
+              <button id="btn-signout"
+                class="w-full text-left px-4 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-red-650 dark:text-red-400 transition-colors flex items-center gap-2 border-t border-zinc-100 dark:border-darkBorder">
+                <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky Sub-header: Categories & Sort -->
+    <div class="hidden border-t border-zinc-100 dark:border-darkBorder bg-zinc-50/50 dark:bg-zinc-950/20 py-2.5 px-6">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
+        <!-- Cloth types / Category Filters -->
+        <div id="category-filters" class="hidden">
+        </div>
+
+        <!-- Hidden Sort Control to keep JS working -->
+        <select id="sort-select" class="hidden">
+          <option value="default">Sort: Recommended</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- DYNAMIC HERO BANNER -->
+  <div id="hero-banner-container"></div>
+
+  <!-- STOREFRONT PRODUCTS SECTION -->
+  <main id="products-section" class="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-16 flex-1 space-y-4 sm:space-y-8">
+    <!-- Section Title & Intro -->
+    <div class="mb-4 sm:mb-10 text-center">
+      <h2 class="text-xl sm:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Our Products</h2>
+    </div>
+
+    <!-- PRODUCTS GRID -->
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6" id="products-grid">
+      <!-- Injected via JS -->
+    </div>
+  </main>
+
+  <!-- COPYRIGHT FOOTER -->
+  <footer class="bg-white dark:bg-darkBg border-t border-zinc-200 dark:border-darkBorder py-6 transition-colors">
+    <div
+      class="max-w-7xl mx-auto px-6 text-center text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+      <span>© 2026 ApexStore Inc. All rights reserved.</span>
+    </div>
+  </footer>
+
+
+  <!-- SECURE CHECKOUT MODAL -->
+  <div id="checkout-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4">
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm checkout-close-overlay"></div>
+
+    <!-- Modal Card -->
+    <div
+      class="bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder rounded-lg w-full max-w-4xl shadow-2xl relative z-10 overflow-hidden transform scale-95 opacity-0 transition-all duration-300 flex flex-col md:flex-row max-h-[90vh]"
+      id="checkout-modal-card">
+
+      <!-- Close button -->
+      <button type="button"
+        class="absolute top-4 right-4 z-10 checkout-close-btn text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Left Panel: Order Summary (40%) -->
+      <div
+        class="md:w-5/12 bg-zinc-50 dark:bg-zinc-900/50 border-r border-zinc-200 dark:border-darkBorder p-6 md:p-8 flex flex-col justify-between overflow-y-auto max-h-[40vh] md:max-h-none">
+        <div class="space-y-6">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Order Summary</h3>
+          <div class="space-y-4" id="checkout-items-list">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-zinc-200 dark:border-darkBorder space-y-2 text-xs">
+          <div class="flex justify-between text-zinc-500">
+            <span>Subtotal</span>
+            <span id="checkout-subtotal">$0.00</span>
+          </div>
+          <div class="flex justify-between text-zinc-500">
+            <span>Shipping</span>
+            <span id="checkout-shipping">$15.00</span>
+          </div>
+          <div class="h-px bg-zinc-200 dark:bg-darkBorder my-2"></div>
+          <div class="flex justify-between text-sm font-bold text-zinc-950 dark:text-white uppercase tracking-wider">
+            <span>Total</span>
+            <span id="checkout-total">₹0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Step Shipping & Payment Form (60%) -->
+      <div class="md:w-7/12 p-6 md:p-8 overflow-y-auto max-h-[50vh] md:max-h-none flex flex-col justify-between">
+        <div>
+          <!-- Step Indicators -->
+          <div class="flex items-center gap-2 mb-6 text-[10px] font-bold uppercase tracking-wider">
+            <span id="step-shipping-indicator"
+              class="text-black dark:text-white border-b-2 border-black dark:border-white pb-1">1. Shipping</span>
+            <span class="text-zinc-300 dark:text-zinc-700">/</span>
+            <span id="step-payment-indicator" class="text-zinc-400 pb-1">2. Payment</span>
+          </div>
+
+          <form id="checkout-form" class="space-y-4">
+            <!-- STEP 1: SHIPPING DETAILS -->
+            <div id="checkout-step-shipping" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-[9px] font-bold uppercase tracking-wider text-zinc-450 mb-1">Full
+                    Name</label>
+                  <input type="text" id="checkout-name"
+                    class="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-darkBorder rounded focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-zinc-800 dark:text-zinc-100 transition-colors">
+                </div>
+                <div>
+                  <label class="block text-[9px] font-bold uppercase tracking-wider text-zinc-450 mb-1">Mobile
+                    Number</label>
+                  <input type="tel" id="checkout-phone"
+                    class="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-darkBorder rounded focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-zinc-800 dark:text-zinc-100 transition-colors">
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-[9px] font-bold uppercase tracking-wider text-zinc-450 mb-1">Pincode</label>
+                  <input type="text" id="checkout-postal"
+                    class="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-darkBorder rounded focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-zinc-800 dark:text-zinc-100 transition-colors">
+                </div>
+                <div>
+                  <label class="block text-[9px] font-bold uppercase tracking-wider text-zinc-450 mb-1">Locality</label>
+                  <input type="text" id="checkout-locality"
+                    class="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-darkBorder rounded focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-zinc-800 dark:text-zinc-100 transition-colors">
+                </div>
+              </div>
+              <div>
+                <label class="block text-[9px] font-bold uppercase tracking-wider text-zinc-450 mb-1">Address (Area and
+                  Street)</label>
+                <textarea id="checkout-address" required rows="2"
+                  class="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-darkBorder rounded focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-zinc-800 dark:text-zinc-100 transition-colors resize-y"></textarea>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    class="block text-[9px] font-bold uppercase tracking-wider text-zinc-450 mb-1">City/District/Town</label>
+                  <input type="text" id="checkout-city"
+                    class="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-darkBorder rounded focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-zinc-800 dark:text-zinc-100 transition-colors">
+                </div>
+                <div>
+                  <label class="block text-[9px] font-bold uppercase tracking-wider text-zinc-450 mb-1">State</label>
+                  <select id="checkout-state" required
+                    class="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-darkBorder rounded focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-zinc-800 dark:text-zinc-100 transition-colors appearance-none">
+                    <option value="" disabled selected>Select State</option>
+
+                    <option value="Tamil Nadu">Tamil Nadu</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-[9px] font-bold uppercase tracking-wider text-zinc-450 mb-1">Landmark
+                  </label>
+                  <input type="text" id="checkout-landmark"
+                    class="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-darkBorder rounded focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-zinc-800 dark:text-zinc-100 transition-colors">
+                </div>
+                <div>
+                  <label class="block text-[9px] font-bold uppercase tracking-wider text-zinc-450 mb-1">Alternate Phone
+                    (Optional)</label>
+                  <input type="tel" id="checkout-alt-phone" placeholder="Alternate Mobile Number"
+                    class="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-darkBorder rounded focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-zinc-800 dark:text-zinc-100 transition-colors">
+                </div>
+              </div>
+              <div class="pt-2">
+                <label class="block text-[9px] font-bold uppercase tracking-wider text-zinc-450 mb-2">Address
+                  Type</label>
+                <div class="flex items-center gap-4">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="address_type" value="Home" checked class="accent-black dark:accent-white">
+                    <span class="text-xs text-zinc-800 dark:text-zinc-200">Home (All day delivery)</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="address_type" value="Work" class="accent-black dark:accent-white">
+                    <span class="text-xs text-zinc-800 dark:text-zinc-200">Work (Delivery between 10 AM - 5 PM)</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Keep email hidden to pass to order if logged in, else require it or handle it -->
+              <input type="hidden" id="checkout-email" value="">
+
+              <div class="pt-4 flex justify-end">
+                <button type="button" id="btn-next-to-payment"
+                  class="px-5 py-2.5 bg-[#fb641b] hover:bg-[#e05a18] text-white rounded text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5">
+                  Save and Deliver Here
+                  <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 2: PAYMENT DETAILS (Hidden initially) -->
+            <div id="checkout-step-payment" class="space-y-4 hidden">
+              <h3
+                class="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-white mb-2 border-b border-zinc-200 dark:border-darkBorder pb-2">
+                Payment Options</h3>
+
+              <div class="space-y-3" id="payment-methods-accordion">
+
+                <!-- UPI -->
+                <div
+                  class="border border-zinc-200 dark:border-darkBorder rounded p-3 bg-zinc-50 dark:bg-zinc-800/50 transition-colors">
+                  <label class="flex items-center gap-3 cursor-pointer w-full">
+                    <input type="radio" name="payment_method" value="upi" checked class="accent-[#fb641b]">
+                    <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">UPI</span>
+                  </label>
+                  <div class="mt-3 pl-7 payment-details" id="pay-details-upi">
+                    <p class="text-[10px] text-zinc-500 mb-2">Pay via PhonePe, Google Pay, or other UPI apps.</p>
+                    <input type="text" placeholder="Enter your UPI ID"
+                      class="w-full px-3 py-2 text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-darkBorder rounded focus:outline-none focus:ring-1 focus:ring-[#fb641b] text-zinc-800 dark:text-zinc-100">
+                  </div>
+                </div>
+
+                <!-- Cash on Delivery -->
+                <div class="border border-zinc-200 dark:border-darkBorder rounded p-3 transition-colors">
+                  <label class="flex items-center gap-3 cursor-pointer w-full">
+                    <input type="radio" name="payment_method" value="cod" class="accent-[#fb641b]">
+                    <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">Cash on
+                      Delivery</span>
+                  </label>
+                  <div class="mt-3 pl-7 hidden payment-details" id="pay-details-cod">
+                    <p class="text-[10px] text-zinc-500">Pay cash when your order is delivered.</p>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="pt-4 flex justify-between items-center">
+                <button type="button" id="btn-back-to-shipping"
+                  class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded transition-all">Back</button>
+                <button type="submit" id="btn-submit-order"
+                  class="px-8 py-3 bg-[#fb641b] hover:bg-[#e05a18] text-white rounded text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-md">
+                  Pay Now
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+
+  <!-- MOBILE / SIDE NAVIGATION DRAWER (Slides in from the left) -->
+  <div id="nav-drawer" class="fixed inset-0 z-50 pointer-events-none hidden">
+    <!-- Backdrop overlay -->
+    <div id="nav-overlay"
+      class="absolute inset-0 bg-black/45 dark:bg-black/70 opacity-0 transition-opacity duration-300 pointer-events-auto">
+    </div>
+
+    <!-- Drawer panel -->
+    <div id="nav-panel"
+      class="absolute left-0 top-0 bottom-0 w-full max-w-xs bg-white dark:bg-darkCard border-r border-zinc-200 dark:border-darkBorder shadow-2xl flex flex-col -translate-x-full transition-transform duration-300 pointer-events-auto">
+      <!-- Header -->
+      <div class="px-6 py-5 border-b border-zinc-200 dark:border-darkBorder flex items-center justify-between">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-zinc-950 dark:text-white">
+          ApexStore
+        </h3>
+        <button id="nav-close-btn"
+          class="p-1 text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Nav Links -->
+      <div
+        class="flex-1 px-6 py-8 flex flex-col gap-6 text-[10px] font-bold uppercase tracking-widest text-zinc-650 dark:text-zinc-400">
+        <a href="#products-section"
+          class="nav-drawer-link hover:text-black dark:hover:text-white transition-colors flex items-center justify-between"
+          data-category="Men">
+          <span>Men</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-55"></i>
+        </a>
+        <a href="#products-section"
+          class="nav-drawer-link hover:text-black dark:hover:text-white transition-colors flex items-center justify-between"
+          data-category="Women">
+          <span>Women</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-55"></i>
+        </a>
+        <a href="#" id="mobile-drawer-orders"
+          class="nav-drawer-link hover:text-black dark:hover:text-white transition-colors flex items-center justify-between">
+          <span>My Orders</span>
+          <i data-lucide="package" class="w-3.5 h-3.5 opacity-55"></i>
+        </a>
+        <a href="#" id="mobile-drawer-cart"
+          class="nav-drawer-link hover:text-black dark:hover:text-white transition-colors flex items-center justify-between">
+          <span>My Cart</span>
+          <i data-lucide="shopping-cart" class="w-3.5 h-3.5 opacity-55"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CART DRAWER -->
+  <div id="cart-drawer" class="fixed inset-0 z-50 pointer-events-none hidden">
+    <!-- Backdrop overlay -->
+    <div id="cart-overlay"
+      class="absolute inset-0 bg-black/45 dark:bg-black/70 opacity-0 transition-opacity duration-300 pointer-events-auto">
+    </div>
+
+    <!-- Drawer panel -->
+    <div id="cart-panel"
+      class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white dark:bg-darkCard border-l border-zinc-200 dark:border-darkBorder shadow-2xl flex flex-col translate-x-full transition-transform duration-300 pointer-events-auto">
+      <!-- Header -->
+      <div class="px-6 py-5 border-b border-zinc-200 dark:border-darkBorder flex items-center justify-between">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-zinc-950 dark:text-white flex items-center gap-2">
+          <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+          Shopping Cart (<span id="cart-drawer-count">0</span>)
+        </h3>
+        <button id="cart-close-btn"
+          class="p-1 text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Cart Items (Scrollable) -->
+      <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4" id="cart-items-container">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- Footer Summary -->
+      <div class="p-6 border-t border-zinc-200 dark:border-darkBorder space-y-4 bg-zinc-50/50 dark:bg-zinc-900/40">
+        <div class="space-y-1.5 text-[11px]">
+          <div class="flex justify-between text-zinc-500">
+            <span>Subtotal</span>
+            <span id="cart-subtotal">$0.00</span>
+          </div>
+          <div class="flex justify-between text-zinc-500">
+            <span>Shipping</span>
+            <span>Calculated at checkout</span>
+          </div>
+          <div class="h-px bg-zinc-200 dark:bg-darkBorder my-2"></div>
+          <div class="flex justify-between text-xs font-bold text-zinc-950 dark:text-white uppercase tracking-wider">
+            <span>Total</span>
+            <span id="cart-total">₹0.00</span>
+          </div>
+        </div>
+
+        <button id="cart-checkout-btn"
+          class="w-full py-3 bg-black hover:bg-zinc-900 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-black text-xs font-bold uppercase tracking-wider rounded transition-colors flex items-center justify-center gap-2">
+          Proceed to Checkout
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCT QUICK VIEW MODAL -->
+  <div id="product-modal" class="fixed inset-0 z-50 flex items-center justify-center px-4 hidden">
+    <!-- Backdrop overlay -->
+    <div id="product-modal-overlay"
+      class="absolute inset-0 bg-black/45 dark:bg-black/70 opacity-0 transition-opacity duration-300"></div>
+
+    <!-- Modal panel -->
+    <div id="product-modal-card"
+      class="bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder rounded-lg w-11/12 max-w-6xl shadow-2xl relative z-10 overflow-hidden transform scale-95 opacity-0 transition-all duration-300 flex flex-col md:flex-row h-[90vh] max-h-[800px]">
+      <!-- Close button -->
+      <button id="product-modal-close"
+        class="absolute top-4 right-4 z-10 p-2 bg-white/80 dark:bg-zinc-900/80 rounded-full border border-zinc-200 dark:border-darkBorder text-zinc-500 hover:text-zinc-950 dark:hover:text-white transition-colors">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Left: Image & Thumbnails -->
+      <div class="md:w-1/2 bg-zinc-100 dark:bg-zinc-900 relative h-64 md:h-full flex flex-col">
+        <div class="flex-1 w-full relative">
+          <img id="product-modal-image" src="" alt="" class="absolute inset-0 w-full h-full object-cover">
+        </div>
+        <!-- Thumbnails Container -->
+        <div id="product-modal-thumbnails"
+          class="h-20 w-full bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-darkBorder flex gap-2 p-2 overflow-x-auto no-scrollbar hidden flex-shrink-0">
+          <!-- JS injected thumbnails -->
+        </div>
+      </div>
+
+      <!-- Right: Details -->
+      <div class="md:w-1/2 p-6 md:p-8 flex flex-col justify-between overflow-y-auto">
+        <div class="space-y-4">
+          <span id="product-modal-category"
+            class="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Category</span>
+          <h2 id="product-modal-title"
+            class="text-2xl md:text-3xl font-bold uppercase text-zinc-950 dark:text-white tracking-wider">Product Title
+          </h2>
+          <p id="product-modal-price" class="text-lg md:text-xl font-bold text-zinc-900 dark:text-white">₹0.00</p>
+          <div class="h-px bg-zinc-200 dark:bg-darkBorder"></div>
+
+          <div class="space-y-2">
+            <h4 class="text-xs font-bold uppercase text-zinc-400 tracking-wider">Description</h4>
+            <p id="product-modal-desc" class="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed"></p>
+          </div>
+
+          <!-- Colors -->
+          <div id="product-modal-colors-container" class="space-y-2 pt-2 hidden">
+            <h4 class="text-xs font-bold uppercase text-zinc-400 tracking-wider">Available Colors</h4>
+            <div id="product-modal-colors" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <!-- Sizes -->
+          <div id="product-modal-sizes-container" class="space-y-2 pt-2 hidden">
+            <h4 class="text-xs font-bold uppercase text-zinc-400 tracking-wider">Available Sizes</h4>
+            <div id="product-modal-sizes" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <!-- Quantity Selector -->
+          <div class="space-y-2 pt-2">
+            <label class="block text-[9px] font-bold uppercase text-zinc-400 tracking-wider">Quantity</label>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center border border-zinc-200 dark:border-darkBorder rounded">
+                <button id="pm-qty-minus"
+                  class="px-2.5 py-1 text-zinc-550 hover:text-zinc-950 dark:hover:text-white transition-colors">-</button>
+                <span id="pm-qty"
+                  class="px-3 py-1 text-xs font-bold text-zinc-950 dark:text-white min-w-[32px] text-center">1</span>
+                <button id="pm-qty-plus"
+                  class="px-2.5 py-1 text-zinc-550 hover:text-zinc-950 dark:hover:text-white transition-colors">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-6 flex flex-col sm:flex-row gap-3">
+          <button id="pm-add-to-cart"
+            class="flex-1 py-3.5 bg-[#ff9f00] hover:bg-[#f39800] text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded shadow-sm transition-colors flex items-center justify-center gap-2">
+            <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+            Add to Cart
+          </button>
+          <button id="pm-buy-now"
+            class="flex-1 py-3.5 bg-[#fb641b] hover:bg-[#e05a18] text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded shadow-sm transition-colors flex items-center justify-center gap-2">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+            Buy Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY ORDERS MODAL -->
+  <div id="orders-modal" class="fixed inset-0 z-50 flex items-center justify-center px-4 hidden">
+    <!-- Backdrop overlay -->
+    <div id="orders-modal-overlay"
+      class="absolute inset-0 bg-black/45 dark:bg-black/70 opacity-0 transition-opacity duration-300"></div>
+
+    <!-- Modal panel -->
+    <div id="orders-modal-card"
+      class="bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder rounded-lg w-full max-w-2xl shadow-2xl relative z-10 overflow-hidden transform scale-95 opacity-0 transition-all duration-300 flex flex-col max-h-[80vh]">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-zinc-200 dark:border-darkBorder flex items-center justify-between">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-zinc-950 dark:text-white flex items-center gap-2">
+          <i data-lucide="package" class="w-4 h-4"></i>
+          My Orders History
+        </h3>
+        <button id="orders-modal-close"
+          class="p-1 text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Orders List (Scrollable) -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-4" id="orders-list-container">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic Toast popup -->
+  <div id="toast"
+    class="fixed bottom-5 left-5 z-50 flex items-center gap-2.5 px-4 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded border border-zinc-850 dark:border-zinc-200 shadow-xl transform translate-y-20 opacity-0 transition-all duration-350 text-xs font-bold uppercase tracking-wider">
+    <i data-lucide="check-circle" class="w-4 h-4 text-white dark:text-black" id="toast-icon"></i>
+    <span id="toast-msg">Order completed successfully!</span>
+  </div>
+
+  <!-- AUTOMATIC SIGNUP/LOGIN POPUP MODAL -->
+  <div id="auth-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4">
+    <!-- Backdrop overlay -->
+    <div class="absolute inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md"></div>
+
+    <!-- Modal panel -->
+    <div
+      class="bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder rounded-lg w-full max-w-sm shadow-2xl relative z-10 overflow-hidden transform transition-all duration-300 scale-95 opacity-0"
+      id="auth-modal-card">
+
+      <!-- Close button -->
+      <button type="button" onclick="closeAuthModal()"
+        class="absolute top-4 right-4 z-10 text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
+      <div class="p-6 space-y-5">
+        <!-- Header -->
+        <div class="text-center space-y-2">
+          <div
+            class="w-9 h-9 rounded-sm bg-black dark:bg-white flex items-center justify-center text-white dark:text-black mx-auto">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+          </div>
+          <h3 class="font-bold text-xs uppercase tracking-wider text-zinc-900 dark:text-white mt-3">Welcome to ApexStore
+          </h3>
+          <p class="text-[10px] text-zinc-400 dark:text-zinc-500">Sign up or log in to customize your clothing shopping
+            experience.</p>
+        </div>
+
+        <!-- Registration Form -->
+        <form id="register-form" class="space-y-3">
+          <div>
+            <input type="text" id="reg-name" required placeholder="Full Name"
+              class="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-darkBorder rounded focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-zinc-800 dark:text-zinc-100 transition-colors">
+          </div>
+          <div>
+            <input type="email" id="reg-email" required placeholder="Email Address"
+              class="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-darkBorder rounded focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-zinc-800 dark:text-zinc-100 transition-colors">
+          </div>
+          <div>
+            <input type="tel" id="reg-phone" required placeholder="Mobile Number"
+              class="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-darkBorder rounded focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-zinc-800 dark:text-zinc-100 transition-colors">
+          </div>
+          <div>
+            <select id="reg-gender" required
+              class="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-darkBorder rounded focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-zinc-800 dark:text-zinc-100 transition-colors appearance-none">
+              <option value="" disabled selected>Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <button type="submit"
+            class="w-full py-2 bg-black dark:bg-white text-white dark:text-black text-xs font-bold uppercase tracking-wider rounded transition-colors">Register
+            & Sign In</button>
+        </form>
+
+        <div class="relative flex items-center py-2">
+          <div class="flex-grow border-t border-zinc-200 dark:border-darkBorder"></div>
+          <span class="flex-shrink-0 mx-4 text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Or continue
+            with</span>
+          <div class="flex-grow border-t border-zinc-200 dark:border-darkBorder"></div>
+        </div>
+
+        <!-- Google Signup Button Target -->
+        <div id="google-signin-btn-container" class="w-full flex justify-center"></div>
+
+
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTRATION SUCCESS CELEBRATION POPUP -->
+  <div id="reg-success-overlay" class="hidden fixed inset-0 z-[9999] flex items-center justify-center px-4">
+    <!-- Blurred colorful backdrop -->
+    <div
+      class="absolute inset-0 bg-gradient-to-br from-violet-600/80 via-pink-500/80 to-orange-400/80 backdrop-blur-sm">
+    </div>
+
+    <!-- Confetti dots (decorative) -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none" id="confetti-container"></div>
+
+    <!-- Success Card -->
+    <div id="reg-success-card"
+      class="relative z-10 bg-white rounded-2xl shadow-2xl px-8 py-10 max-w-sm w-full text-center transform scale-50 opacity-0 transition-all duration-500"
+      style="box-shadow: 0 25px 60px rgba(0,0,0,0.35);">
+
+      <!-- Animated gradient ring + checkmark -->
+      <div class="relative w-24 h-24 mx-auto mb-6">
+        <div class="absolute inset-0 rounded-full animate-spin-slow"
+          style="background: conic-gradient(from 0deg, #a855f7, #ec4899, #f97316, #eab308, #22c55e, #3b82f6, #a855f7); padding: 3px; border-radius: 9999px;">
+          <div class="w-full h-full bg-white rounded-full"></div>
+        </div>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="w-16 h-16 rounded-full flex items-center justify-center"
+            style="background: linear-gradient(135deg, #a855f7, #ec4899);">
+            <svg class="w-8 h-8 text-white" id="reg-check-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12" class="check-path"></polyline>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Heading -->
+      <h2 class="text-2xl font-extrabold mb-1"
+        style="background: linear-gradient(135deg, #7c3aed, #db2777, #ea580c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        Welcome Aboard! 🎉
+      </h2>
+
+      <!-- Dynamic name -->
+      <p id="reg-success-name" class="text-base font-bold text-zinc-700 mb-1"></p>
+
+      <p class="text-sm text-zinc-400 mb-6">Your account has been created.<br>Happy shopping at ApexStore!</p>
+
+      <!-- Colorful tags -->
+      <div class="flex flex-wrap justify-center gap-2 mb-6">
+        <span class="px-3 py-1 rounded-full text-xs font-bold text-white"
+          style="background: linear-gradient(135deg,#a855f7,#7c3aed);">✓ Registered</span>
+        <span class="px-3 py-1 rounded-full text-xs font-bold text-white"
+          style="background: linear-gradient(135deg,#ec4899,#db2777);">✓ Signed In</span>
+        <span class="px-3 py-1 rounded-full text-xs font-bold text-white"
+          style="background: linear-gradient(135deg,#f97316,#ea580c);">✓ Ready to Shop</span>
+      </div>
+
+      <!-- CTA Button -->
+      <button id="reg-success-close"
+        class="w-full py-3 rounded-xl text-sm font-bold text-white transition-transform hover:scale-105 active:scale-95"
+        style="background: linear-gradient(135deg, #7c3aed, #db2777, #ea580c);">
+        Start Shopping →
+      </button>
+    </div>
+  </div>
+
+  <style>
+    @keyframes spin-slow {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .animate-spin-slow {
+      animation: spin-slow 2.5s linear infinite;
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-20px) rotate(0deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      animation: confetti-fall linear forwards;
+    }
+
+    /* Checkmark draw animation */
+    .check-path {
+      stroke-dasharray: 30;
+      stroke-dashoffset: 30;
+      transition: stroke-dashoffset 0.6s ease 0.4s;
+    }
+
+    #reg-success-card.shown .check-path {
+      stroke-dashoffset: 0;
+    }
+
+    /* Order success modal animations */
+    @keyframes order-pop-in {
+      0%   { transform: scale(0.75) translateY(30px); opacity: 0; }
+      70%  { transform: scale(1.03) translateY(-4px); opacity: 1; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    @keyframes check-draw {
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes ripple-out {
+      0%   { transform: scale(0.6); opacity: 0.6; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    @keyframes float-up {
+      0%   { transform: translateY(0);   opacity: 1; }
+      100% { transform: translateY(-28px); opacity: 0; }
+    }
+    .order-success-pop  { animation: order-pop-in 0.55s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+    .order-check-draw   { stroke-dasharray: 60; stroke-dashoffset: 60; animation: check-draw 0.6s ease 0.35s forwards; }
+    .order-ripple       { animation: ripple-out 1.2s ease-out 0.1s forwards; }
+    .order-tag-float    { animation: float-up 0.7s ease forwards; }
+  </style>
+
+  <!-- ORDER SUCCESS MODAL -->
+  <div id="order-success-modal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center px-4">
+    <!-- Blurred backdrop -->
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="order-success-overlay"></div>
+
+    <!-- Card -->
+    <div id="order-success-card"
+      class="relative z-10 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden opacity-0"
+      style="box-shadow: 0 32px 80px rgba(0,0,0,0.4);">
+
+      <!-- Top gradient bar -->
+      <div class="h-1.5 w-full" style="background: linear-gradient(90deg, #22c55e, #16a34a, #15803d);"></div>
+
+      <!-- Body -->
+      <div class="px-6 pt-7 pb-6 text-center">
+
+        <!-- Animated checkmark ring -->
+        <div class="relative w-16 h-16 mx-auto mb-4">
+          <div class="absolute inset-0 rounded-full border-4 border-green-400 opacity-0" id="order-ripple-ring"></div>
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <circle cx="40" cy="40" r="36" fill="none" stroke="#dcfce7" stroke-width="8"/>
+            <circle cx="40" cy="40" r="36" fill="none" stroke="#22c55e" stroke-width="8"
+              stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226"
+              id="order-circle-draw" style="transition: stroke-dashoffset 0.6s ease 0.1s;"/>
+            <polyline points="24,42 36,54 58,28" fill="none" stroke="#16a34a" stroke-width="6"
+              stroke-linecap="round" stroke-linejoin="round"
+              class="order-check-draw"/>
+          </svg>
+        </div>
+
+        <!-- Heading -->
+        <h2 class="text-lg font-extrabold text-zinc-900 dark:text-white tracking-tight mb-0.5">Order Confirmed! 🎉</h2>
+        <p class="text-[11px] text-zinc-400 dark:text-zinc-500 mb-4">Your order has been placed successfully.</p>
+
+        <!-- Order details card -->
+        <div class="bg-zinc-50 dark:bg-zinc-800 rounded-xl px-4 py-3.5 text-left space-y-2 mb-4 border border-zinc-100 dark:border-zinc-700">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Order ID</span>
+            <span class="text-xs font-bold text-zinc-900 dark:text-white" id="os-order-id">—</span>
+          </div>
+          <div class="h-px bg-zinc-200 dark:bg-zinc-700"></div>
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Confirmed On</span>
+            <span class="text-xs font-bold text-zinc-900 dark:text-white" id="os-date">—</span>
+          </div>
+          <div class="h-px bg-zinc-200 dark:bg-zinc-700"></div>
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Amount Paid</span>
+            <span class="text-sm font-extrabold text-green-600 dark:text-green-400" id="os-total">—</span>
+          </div>
+          <div class="h-px bg-zinc-200 dark:bg-zinc-700"></div>
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Payment</span>
+            <span class="text-xs font-bold text-zinc-900 dark:text-white" id="os-payment">—</span>
+          </div>
+          <div class="h-px bg-zinc-200 dark:bg-zinc-700"></div>
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Status</span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400">
+              <span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span> Processing
+            </span>
+          </div>
+        </div>
+
+        <!-- Order Tracking Timeline -->
+        <div class="mb-5 px-1">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-3 text-left">Order Tracking</p>
+          <div class="relative flex items-start justify-between">
+
+            <!-- Connector lines -->
+            <div class="absolute top-3.5 left-[calc(16.66%)] right-[calc(16.66%)] h-0.5 bg-zinc-200 dark:bg-zinc-700 z-0">
+              <div class="h-full w-0 bg-green-500 transition-all duration-700" id="os-line-shipped" style="width:0%"></div>
+            </div>
+
+            <!-- Step 1: Confirmed -->
+            <div class="flex flex-col items-center z-10 flex-1">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center bg-green-500 shadow-md shadow-green-200 dark:shadow-green-900">
+                <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <span class="text-[9px] font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mt-1.5">Confirmed</span>
+              <span class="text-[8px] text-zinc-400 mt-0.5" id="os-confirmed-time">—</span>
+            </div>
+
+            <!-- Step 2: Shipped -->
+            <div class="flex flex-col items-center z-10 flex-1">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center bg-zinc-200 dark:bg-zinc-700 border-2 border-zinc-300 dark:border-zinc-600" id="os-step-shipped">
+                <svg class="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                </svg>
+              </div>
+              <span class="text-[9px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mt-1.5" id="os-label-shipped">Shipped</span>
+              <span class="text-[8px] text-zinc-300 mt-0.5" id="os-shipped-time">Pending</span>
+            </div>
+
+            <!-- Step 3: Delivered -->
+            <div class="flex flex-col items-center z-10 flex-1">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center bg-zinc-200 dark:bg-zinc-700 border-2 border-zinc-300 dark:border-zinc-600" id="os-step-delivered">
+                <svg class="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+              </div>
+              <span class="text-[9px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mt-1.5" id="os-label-delivered">Delivered</span>
+              <span class="text-[8px] text-zinc-300 mt-0.5" id="os-delivered-time">Pending</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <button id="order-success-close"
+          class="w-full py-3 rounded-xl text-sm font-bold text-white transition-transform hover:scale-[1.02] active:scale-95"
+          style="background: linear-gradient(135deg, #16a34a, #15803d);">
+          Continue Shopping
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase integration layer (must load before store.js) -->
+  <script src="supabase.js"></script>
+  <!-- Load storefront JS script -->
+  <script src="store.js"></script>
+</body>
+
+</html>
