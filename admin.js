@@ -140,6 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
         item.classList.remove('bg-primary-50', 'dark:bg-slate-700/50', 'text-primary-600', 'dark:text-white');
       }
     });
+
+    // Close mobile sidebar if it's open
+    if (window.innerWidth < 768) {
+      closeMobileSidebar();
+    }
   }
 
   window.addEventListener('hashchange', () => switchTab(window.location.hash));
@@ -500,7 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (registrations.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="5" class="px-6 py-8 text-center text-slate-500">No registered customers found.</td>
+          <td colspan="6" class="px-6 py-8 text-center text-slate-500">No registered customers found.</td>
         </tr>
       `;
       return;
@@ -508,16 +513,36 @@ document.addEventListener('DOMContentLoaded', () => {
     
     registrations.forEach(reg => {
       tbody.innerHTML += `
-        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group">
           <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">${reg.name || 'N/A'}</td>
           <td class="px-6 py-4 text-slate-500">${reg.email || 'N/A'}</td>
           <td class="px-6 py-4 text-slate-500">${reg.phone || 'N/A'}</td>
           <td class="px-6 py-4 text-slate-500">${reg.gender || 'N/A'}</td>
           <td class="px-6 py-4 text-slate-500">${reg.date || 'N/A'}</td>
+          <td class="px-6 py-4 text-right">
+            <button onclick="deleteRegistration('${reg.email}')" title="Delete Registration" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider text-red-500 border border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors opacity-0 group-hover:opacity-100">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </td>
         </tr>
       `;
     });
+    lucide.createIcons();
   }
+
+  window.deleteRegistration = async function(email) {
+    if (!email) return;
+    if (!confirm(`Delete registration for ${email}?`)) return;
+    
+    if (window.DB && window.DB.deleteRegistration) {
+      await window.DB.deleteRegistration(email);
+    } else {
+      let local = JSON.parse(localStorage.getItem('customer_registrations')) || [];
+      local = local.filter(r => r.email !== email);
+      localStorage.setItem('customer_registrations', JSON.stringify(local));
+    }
+    renderCustomers();
+  };
 
   // --- LOGINS RENDER ---
   async function renderLogins() {
@@ -868,6 +893,13 @@ document.addEventListener('DOMContentLoaded', () => {
          }
          state.logins = [];
          renderLogins();
+      } else if (confirmAction === 'resetRegistrations') {
+         if (window.DB && window.DB.deleteAllRegistrations) {
+            await window.DB.deleteAllRegistrations();
+         } else {
+            localStorage.removeItem('customer_registrations');
+         }
+         renderCustomers();
       }
       closeConfirmModal();
     });
