@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/eclipse", "destination": "/eclipse.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
