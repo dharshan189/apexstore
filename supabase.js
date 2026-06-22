@@ -335,9 +335,46 @@ async function db_saveBanner(bannerData) {
   if (error) dbErr('saveBanner', error);
 }
 
+/* ============================================================
+   BULK ACTIONS
+   ============================================================ */
+
+/**
+ * Factory reset: delete all products, orders, registrations, logins.
+ */
+async function db_factoryReset() {
+  localStorage.clear();
+  const sb = await getClient();
+  if (!sb) return;
+
+  // We use filter that always evaluates to true to delete all rows
+  await Promise.all([
+    sb.from('products').delete().neq('id', -1),
+    sb.from('orders').delete().neq('id', 'dummy_order_id'),
+    sb.from('customer_registrations').delete().neq('email', 'dummy@dummy.com'),
+    sb.from('user_logins').delete().neq('email', 'dummy@dummy.com')
+  ]);
+}
+
+/**
+ * Delete all login records.
+ */
+async function db_deleteAllLogins() {
+  localStorage.removeItem('user_logins');
+  const sb = await getClient();
+  if (!sb) return;
+  
+  const { error } = await sb.from('user_logins').delete().neq('email', 'dummy@dummy.com');
+  if (error) dbErr('deleteAllLogins', error);
+}
+
 /* ── Export as globals so store.js / admin.js can call them ─ */
 window.DB = {
   isConfigured: SUPABASE_CONFIGURED,
+
+  // Bulk Actions
+  factoryReset: db_factoryReset,
+  deleteAllLogins: db_deleteAllLogins,
 
   // Products
   getProducts: db_getProducts,
