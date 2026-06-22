@@ -849,15 +849,23 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   if(confirmBtn) {
-    confirmBtn.addEventListener('click', () => {
+    confirmBtn.addEventListener('click', async () => {
       if(confirmAction === 'resetRevenue') {
          localStorage.setItem('revenue_reset_offset', (JSON.parse(localStorage.getItem('orders')) || []).reduce((sum, o) => sum + parseFloat(o.total), 0)); 
          window.location.reload();
       } else if (confirmAction === 'factoryReset') {
-         localStorage.clear(); 
+         if (window.DB && window.DB.factoryReset) {
+            await window.DB.factoryReset();
+         } else {
+            localStorage.clear(); 
+         }
          window.location.reload();
       } else if (confirmAction === 'resetLogins') {
-         localStorage.removeItem('user_logins');
+         if (window.DB && window.DB.deleteAllLogins) {
+            await window.DB.deleteAllLogins();
+         } else {
+            localStorage.removeItem('user_logins');
+         }
          state.logins = [];
          renderLogins();
       }
