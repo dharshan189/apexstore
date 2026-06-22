@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en" class="light">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ApexStore Admin </title>
+  <title>ApexStore Management Page </title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -114,7 +113,9 @@
   class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex h-screen overflow-hidden transition-colors duration-300 font-sans">
 
   <!-- Mobile Sidebar Overlay -->
-  <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-slate-900/50 dark:bg-slate-900/80 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
+  <div id="mobile-sidebar-overlay"
+    class="fixed inset-0 bg-slate-900/50 dark:bg-slate-900/80 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300">
+  </div>
 
   <!-- ================= SIDEBAR ================= -->
   <aside id="sidebar"
@@ -887,6 +888,11 @@
             <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Customer Registration Details</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">View manually registered customers.</p>
           </div>
+          <button
+            onclick="showConfirmModal('Clear All Registrations', 'Are you sure you want to clear all customer registrations?', 'resetRegistrations')"
+            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors shadow-md flex items-center gap-2">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Clear All
+          </button>
         </div>
 
         <div
@@ -901,6 +907,7 @@
                   <th class="px-6 py-4">Phone</th>
                   <th class="px-6 py-4">Gender</th>
                   <th class="px-6 py-4">Date Registered</th>
+                  <th class="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm" id="customers-tbody">
@@ -927,14 +934,16 @@
           <h3 class="font-bold text-lg mb-4 text-slate-900 dark:text-white">Store Actions</h3>
           <div class="flex gap-4">
             <div class="flex-1">
-              <button onclick="showConfirmModal('Factory Reset Database', 'Are you absolutely sure you want to factory reset? This will delete ALL products and orders and cannot be undone.', 'factoryReset')"
+              <button
+                onclick="showConfirmModal('Factory Reset Database', 'Are you absolutely sure you want to factory reset? This will delete ALL products and orders and cannot be undone.', 'factoryReset')"
                 class="px-4 py-2 w-full bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
                 <i data-lucide="trash-2" class="w-4 h-4"></i> Factory Reset Database
               </button>
               <p class="text-[11px] text-slate-500 mt-2 text-center">Deletes all products, orders & configs.</p>
             </div>
             <div class="flex-1">
-              <button onclick="showConfirmModal('Reset Revenue Count', 'Are you sure you want to reset the Dashboard Revenue to ₹0.00? Your existing orders will NOT be deleted.', 'resetRevenue')"
+              <button
+                onclick="showConfirmModal('Reset Revenue Count', 'Are you sure you want to reset the Dashboard Revenue to ₹0.00? Your existing orders will NOT be deleted.', 'resetRevenue')"
                 class="px-4 py-2 w-full bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
                 <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset Revenue Count
               </button>
@@ -944,7 +953,8 @@
           <h3 class="font-bold text-lg mt-8 mb-4 text-slate-900 dark:text-white">Customer Data</h3>
           <div class="flex gap-4">
             <div class="flex-1">
-              <button onclick="showConfirmModal('Reset Login Details', 'Are you sure you want to clear all customer login records?', 'resetLogins')"
+              <button
+                onclick="showConfirmModal('Reset Login Details', 'Are you sure you want to clear all customer login records?', 'resetLogins')"
                 class="px-4 py-2 w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
                 <i data-lucide="users-x" class="w-4 h-4"></i> Reset Customer Logins
               </button>
@@ -960,52 +970,71 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Banner Management</h1>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Configure the main hero banner shown on the storefront.</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Configure the main hero banner shown on the
+              storefront.</p>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 max-w-2xl">
+        <div
+          class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 max-w-2xl">
           <form id="banner-form" class="space-y-4" onsubmit="saveBannerSettings(event)">
             <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-4">
               <label class="font-medium text-slate-700 dark:text-slate-300">Enable Banner</label>
               <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" id="banner-enabled" class="sr-only peer">
-                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-primary-600"></div>
+                <div
+                  class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-primary-600">
+                </div>
               </label>
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Banner Title</label>
-              <input type="text" id="banner-title" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors dark:text-white" required>
+              <input type="text" id="banner-title"
+                class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors dark:text-white"
+                required>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Banner Description</label>
-              <textarea id="banner-desc" rows="3" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors dark:text-white" required></textarea>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Banner
+                Description</label>
+              <textarea id="banner-desc" rows="3"
+                class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors dark:text-white"
+                required></textarea>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Banner Image Upload</label>
-              <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 flex flex-col items-center justify-center text-center bg-slate-50 dark:bg-slate-900/30 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors cursor-pointer relative overflow-hidden group">
-                <input type="file" id="banner-image-upload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*">
-                <div class="w-12 h-12 bg-white dark:bg-slate-800 shadow-sm rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Banner Image
+                Upload</label>
+              <div
+                class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 flex flex-col items-center justify-center text-center bg-slate-50 dark:bg-slate-900/30 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors cursor-pointer relative overflow-hidden group">
+                <input type="file" id="banner-image-upload"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*">
+                <div
+                  class="w-12 h-12 bg-white dark:bg-slate-800 shadow-sm rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                   <i data-lucide="upload-cloud" class="w-5 h-5 text-primary-500"></i>
                 </div>
                 <p class="font-medium text-slate-700 dark:text-slate-300 text-sm">Click to upload banner image</p>
                 <p class="text-xs text-slate-500 mt-1">Recommended size: 1920x600px</p>
               </div>
-              
+
               <!-- Banner Image Preview -->
-              <div id="banner-image-preview-container" class="mt-4 hidden relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 h-32 sm:h-48">
+              <div id="banner-image-preview-container"
+                class="mt-4 hidden relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 h-32 sm:h-48">
                 <img id="banner-image-preview" src="" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                  <button type="button" id="remove-banner-image-btn" class="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors shadow-lg"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                <div
+                  class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                  <button type="button" id="remove-banner-image-btn"
+                    class="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors shadow-lg"><i
+                      data-lucide="trash-2" class="w-5 h-5"></i></button>
                 </div>
               </div>
             </div>
 
             <div class="pt-4 flex justify-end">
-              <button type="submit" class="px-5 py-2.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg shadow-sm transition-colors">Save Banner</button>
+              <button type="submit"
+                class="px-5 py-2.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg shadow-sm transition-colors">Save
+                Banner</button>
             </div>
           </form>
         </div>
@@ -1075,11 +1104,13 @@
     <div
       class="relative bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-2xl scale-95 transition-transform duration-300 p-6 text-center border border-slate-200 dark:border-slate-700"
       id="confirm-modal-card">
-      <div class="w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+      <div
+        class="w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
         <i data-lucide="alert-triangle" class="w-8 h-8 text-yellow-600 dark:text-yellow-400"></i>
       </div>
       <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2" id="confirm-modal-title">Are you sure?</h3>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mb-6" id="confirm-modal-desc">This action cannot be undone.</p>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mb-6" id="confirm-modal-desc">This action cannot be undone.
+      </p>
       <div class="flex gap-3 w-full">
         <button onclick="closeConfirmModal()"
           class="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-medium transition-colors">
