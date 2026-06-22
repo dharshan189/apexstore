@@ -241,6 +241,21 @@ async function db_insertRegistration(reg) {
   return data;
 }
 
+/**
+ * Delete a specific registration by email.
+ * @param {string} email
+ */
+async function db_deleteRegistration(email) {
+  const local = JSON.parse(localStorage.getItem('customer_registrations')) || [];
+  localStorage.setItem('customer_registrations', JSON.stringify(local.filter(r => r.email !== email)));
+
+  const sb = await getClient();
+  if (!sb) return;
+
+  const { error } = await sb.from('customer_registrations').delete().eq('email', email);
+  if (error) dbErr('deleteRegistration', error);
+}
+
 /* ============================================================
    LOGIN RECORDS
    ============================================================ */
@@ -368,6 +383,18 @@ async function db_deleteAllLogins() {
   if (error) dbErr('deleteAllLogins', error);
 }
 
+/**
+ * Delete all customer registrations.
+ */
+async function db_deleteAllRegistrations() {
+  localStorage.removeItem('customer_registrations');
+  const sb = await getClient();
+  if (!sb) return;
+  
+  const { error } = await sb.from('customer_registrations').delete().neq('email', 'dummy@dummy.com');
+  if (error) dbErr('deleteAllRegistrations', error);
+}
+
 /* ── Export as globals so store.js / admin.js can call them ─ */
 window.DB = {
   isConfigured: SUPABASE_CONFIGURED,
@@ -375,6 +402,7 @@ window.DB = {
   // Bulk Actions
   factoryReset: db_factoryReset,
   deleteAllLogins: db_deleteAllLogins,
+  deleteAllRegistrations: db_deleteAllRegistrations,
 
   // Products
   getProducts: db_getProducts,
@@ -390,6 +418,7 @@ window.DB = {
   // Registrations
   getRegistrations: db_getRegistrations,
   insertRegistration: db_insertRegistration,
+  deleteRegistration: db_deleteRegistration,
 
   // Logins
   getLogins: db_getLogins,
