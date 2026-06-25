@@ -15,6 +15,17 @@ document.addEventListener('DOMContentLoaded', () => {
     sortOption: 'default'
   };
 
+  // Security Helper to prevent XSS
+  function escapeHTML(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   // Active Product for Quick View
   let activeQuickViewProduct = null;
 
@@ -170,25 +181,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
     if (!bannerData.enabled) {
-      container.innerHTML = '';
+      container.style.display = 'none';
       return;
     }
 
+    const img = new Image();
+    img.src = bannerData.image;
+    
+    // Inject the HTML immediately so the text shows up, but keep the skeleton pulse classes on the container until the image loads.
     container.innerHTML = `
-      <section class="relative w-full h-[42vh] sm:h-[65vh] min-h-[220px] sm:min-h-[500px]">
-        <img src="${bannerData.image}" alt="${bannerData.title}" class="absolute inset-0 w-full h-full object-cover">
-        <div class="absolute inset-0 bg-black/35"></div>
-        <div class="absolute inset-0 flex flex-col justify-end px-4 sm:px-8 md:px-16 pb-8 sm:pb-16 z-10 text-white max-w-7xl mx-auto w-full">
-          <div class="space-y-2 sm:space-y-4 max-w-2xl">
-            <h1 class="text-2xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight">${bannerData.title}</h1>
-            <p class="text-xs sm:text-base md:text-lg text-zinc-100 max-w-xl hidden sm:block">${bannerData.description}</p>
-            <div class="pt-2 sm:pt-4">
-              <a href="#products-section" class="inline-block px-5 py-2.5 sm:px-8 sm:py-4 bg-white text-black text-xs sm:text-sm font-semibold rounded-full transition-transform hover:scale-105">Shop Now</a>
-            </div>
+      <img src="${escapeHTML(bannerData.image)}" alt="${escapeHTML(bannerData.title)}" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" id="hero-banner-img">
+      <div class="absolute inset-0 bg-black/35"></div>
+      <div class="absolute inset-0 flex flex-col justify-end px-4 sm:px-8 md:px-16 pb-8 sm:pb-16 z-10 text-white max-w-7xl mx-auto w-full">
+        <div class="space-y-2 sm:space-y-4 max-w-2xl">
+          <h1 class="text-2xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight">${escapeHTML(bannerData.title)}</h1>
+          <p class="text-xs sm:text-base md:text-lg text-zinc-100 max-w-xl hidden sm:block">${escapeHTML(bannerData.description)}</p>
+          <div class="pt-2 sm:pt-4">
+            <a href="#products-section" class="inline-block px-5 py-2.5 sm:px-8 sm:py-4 bg-white text-black text-xs sm:text-sm font-semibold rounded-full transition-transform hover:scale-105">Shop Now</a>
           </div>
         </div>
-      </section>
+      </div>
     `;
+
+    img.onload = () => {
+      container.classList.remove('animate-pulse', 'bg-zinc-100', 'dark:bg-zinc-900');
+      const renderedImg = document.getElementById('hero-banner-img');
+      if (renderedImg) {
+        renderedImg.classList.remove('opacity-0');
+      }
+    };
+    
+    // Fallback if image fails or is already cached
+    if (img.complete) {
+      img.onload();
+    }
   }
 
   // ================= 2. THEME SWITCHER =================
@@ -214,7 +240,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Filter by Category & Search Query
     let filtered = allProducts.filter(p => {
-      const matchCategory = state.selectedCategory === 'all' || p.category.toLowerCase() === state.selectedCategory.toLowerCase();
+      const cat = p.category.toLowerCase().trim();
+      const sel = state.selectedCategory.toLowerCase().trim();
+      const matchCategory = state.selectedCategory === 'all' || cat === sel || cat.startsWith(sel + ' ') || cat.startsWith(sel + "'") || cat.startsWith(sel + "-");
       const matchSearch = p.title.toLowerCase().includes(state.searchQuery.toLowerCase()) || 
                           (p.description && p.description.toLowerCase().includes(state.searchQuery.toLowerCase()));
       return matchCategory && matchSearch;
@@ -245,28 +273,28 @@ document.addEventListener('DOMContentLoaded', () => {
       const cardHTML = `
         <div class="group flex flex-col cursor-pointer transition-opacity">
           <!-- Product Image (click opens quick view) -->
-          <div class="relative overflow-hidden bg-zinc-100 dark:bg-zinc-900 aspect-[4/5] rounded-lg quick-view-trigger" data-id="${product.id}">
-            <img src="${hasImage}" alt="${product.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+          <div class="relative overflow-hidden bg-zinc-100 dark:bg-zinc-900 aspect-[4/5] rounded-lg quick-view-trigger" data-id="${escapeHTML(product.id)}">
+            <img src="${escapeHTML(hasImage)}" alt="${escapeHTML(product.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
             <!-- Badge -->
             <span class="absolute top-2 left-2 bg-black text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">New</span>
           </div>
 
           <!-- Product Info -->
-          <div class="mt-3 flex flex-col space-y-1 quick-view-trigger" data-id="${product.id}">
-            <div class="text-[10px] text-zinc-400 uppercase tracking-wider">${product.category}</div>
-            <h3 class="font-semibold text-sm text-zinc-900 dark:text-white leading-tight">${product.title}</h3>
-            <span class="text-sm font-bold text-zinc-900 dark:text-white">₹${product.price}</span>
+          <div class="mt-3 flex flex-col space-y-1 quick-view-trigger" data-id="${escapeHTML(product.id)}">
+            <div class="text-[10px] text-zinc-400 uppercase tracking-wider">${escapeHTML(product.category)}</div>
+            <h3 class="font-semibold text-sm text-zinc-900 dark:text-white leading-tight">${escapeHTML(product.title)}</h3>
+            <span class="text-sm font-bold text-zinc-900 dark:text-white">₹${escapeHTML(product.price)}</span>
           </div>
 
           <!-- Always-visible Action Buttons -->
           <div class="mt-3 flex gap-2">
             <button class="add-to-cart-btn flex-1 py-2 bg-amber-400 hover:bg-amber-500 text-black font-bold text-[10px] uppercase tracking-wider rounded transition-colors flex items-center justify-center gap-1"
-              data-id="${product.id}" data-title="${product.title}" data-price="${product.price}" data-image="${hasImage}">
+              data-id="${escapeHTML(product.id)}" data-title="${escapeHTML(product.title)}" data-price="${escapeHTML(product.price)}" data-image="${escapeHTML(hasImage)}">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h13M10 21a1 1 0 100-2 1 1 0 000 2zm7 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
               Add to Cart
             </button>
             <button class="buy-now-btn flex-1 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold text-[10px] uppercase tracking-wider rounded transition-colors flex items-center justify-center gap-1"
-              data-id="${product.id}">
+              data-id="${escapeHTML(product.id)}">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
               Buy Now
             </button>
@@ -283,8 +311,17 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const id = e.currentTarget.getAttribute('data-id');
-        const product = allProducts.find(p => p.id.toString() === id.toString());
-        if (product && product.sizes && product.sizes.length > 0) {
+        // Try matching by both strict and loose id comparison
+        const product = allProducts.find(p => p.id != null && p.id.toString() === id.toString());
+        if (!product) {
+          // Fallback: read directly from button data attributes
+          const title = e.currentTarget.getAttribute('data-title');
+          const price = e.currentTarget.getAttribute('data-price');
+          const image = e.currentTarget.getAttribute('data-image');
+          addToCart({ id, title, price, image });
+          return;
+        }
+        if (product.sizes && product.sizes.length > 0) {
           // Open modal for size selection
           openProductModal(product);
         } else {
@@ -317,13 +354,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const existing = state.cart.find(item => item.id.toString() === product.id.toString());
     if (existing) {
       existing.quantity += quantity;
+      existing.selected = true;
     } else {
       state.cart.push({
         id: product.id,
         title: product.title,
         price: product.price,
         image: product.image,
-        quantity: quantity
+        quantity: quantity,
+        selected: true
       });
     }
 
@@ -367,30 +406,34 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    cartCheckoutBtn.disabled = false;
-    cartCheckoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-
     let subtotal = 0;
 
     state.cart.forEach(item => {
+      const isSelected = item.selected !== false;
       const itemSubtotal = parseFloat(item.price) * item.quantity;
-      subtotal += itemSubtotal;
+      if (isSelected) {
+        subtotal += itemSubtotal;
+      }
 
       const itemHTML = `
-        <div class="flex items-center gap-4 pb-4 border-b border-zinc-100 dark:border-darkBorder">
-          <img src="${item.image}" alt="${item.title}" class="w-14 h-14 object-cover rounded bg-zinc-55 dark:bg-zinc-900 border border-zinc-150 dark:border-darkBorder">
+        <div class="flex items-center gap-3 pb-4 border-b border-zinc-100 dark:border-darkBorder">
+          <!-- Checkbox for item selection -->
+          <input type="checkbox" class="cart-item-checkbox accent-black dark:accent-white w-4 h-4 cursor-pointer flex-shrink-0 rounded border-zinc-300 dark:border-zinc-700" data-id="${escapeHTML(item.id)}" ${isSelected ? 'checked' : ''}>
+          
+          <img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.title)}" class="w-14 h-14 object-cover rounded bg-zinc-55 dark:bg-zinc-900 border border-zinc-150 dark:border-darkBorder flex-shrink-0">
+          
           <div class="flex-1 min-w-0">
-            <h4 class="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider truncate">${item.title}</h4>
-            <p class="text-[10px] text-zinc-450 dark:text-zinc-500 mt-0.5">₹${item.price} each</p>
+            <h4 class="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider truncate">${escapeHTML(item.title)}</h4>
+            <p class="text-[10px] text-zinc-450 dark:text-zinc-500 mt-0.5">₹${escapeHTML(item.price)} each</p>
             
             <div class="flex items-center justify-between mt-2">
               <div class="flex items-center border border-zinc-200 dark:border-darkBorder rounded">
-                <button class="cart-qty-minus px-2 py-0.5 text-zinc-500 hover:text-zinc-950 dark:hover:text-white transition-colors" data-id="${item.id}">-</button>
-                <span class="px-2.5 py-0.5 text-[10px] font-bold text-zinc-950 dark:text-white min-w-[20px] text-center">${item.quantity}</span>
-                <button class="cart-qty-plus px-2 py-0.5 text-zinc-500 hover:text-zinc-950 dark:hover:text-white transition-colors" data-id="${item.id}">+</button>
+                <button class="cart-qty-minus px-2 py-0.5 text-zinc-500 hover:text-zinc-950 dark:hover:text-white transition-colors" data-id="${escapeHTML(item.id)}">-</button>
+                <span class="px-2.5 py-0.5 text-[10px] font-bold text-zinc-950 dark:text-white min-w-[20px] text-center">${escapeHTML(item.quantity)}</span>
+                <button class="cart-qty-plus px-2 py-0.5 text-zinc-500 hover:text-zinc-950 dark:hover:text-white transition-colors" data-id="${escapeHTML(item.id)}">+</button>
               </div>
               
-              <button class="cart-remove-item text-[10px] text-zinc-400 hover:text-red-500 uppercase tracking-widest font-bold flex items-center gap-1" data-id="${item.id}">
+              <button class="cart-remove-item text-[10px] text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-350 uppercase tracking-widest font-bold flex items-center gap-1" data-id="${escapeHTML(item.id)}">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                 Remove
               </button>
@@ -401,9 +444,31 @@ document.addEventListener('DOMContentLoaded', () => {
       cartItemsContainer.insertAdjacentHTML('beforeend', itemHTML);
     });
 
+    // Disable checkout if subtotal is 0 (i.e. no items are selected)
+    if (subtotal === 0) {
+      cartCheckoutBtn.disabled = true;
+      cartCheckoutBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+      cartCheckoutBtn.disabled = false;
+      cartCheckoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+
     cartSubtotal.textContent = `₹${subtotal.toFixed(2)}`;
     cartTotal.textContent = `₹${subtotal.toFixed(2)}`;
     lucide.createIcons();
+
+    // Listeners for checkbox selection changes
+    document.querySelectorAll('.cart-item-checkbox').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const id = cb.getAttribute('data-id');
+        const item = state.cart.find(i => i.id.toString() === id.toString());
+        if (item) {
+          item.selected = cb.checked;
+          localStorage.setItem('cart', JSON.stringify(state.cart));
+          renderCart();
+        }
+      });
+    });
 
     // Listeners for quantity actions
     document.querySelectorAll('.cart-qty-minus').forEach(btn => {
@@ -585,13 +650,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   pmAddToCart.addEventListener('click', () => {
     if (activeQuickViewProduct) {
-      // Check if size selection is required
       const sizesList = document.getElementById('product-modal-sizes');
-      const activeSize = sizesList ? sizesList.querySelector('.size-option.bg-zinc-950, .size-option.dark\\:bg-white') : null;
       const selectedSizeBtn = sizesList ? sizesList.querySelector('.size-option[class*="bg-zinc-950"]') : null;
-      const hassizes = activeQuickViewProduct.sizes && activeQuickViewProduct.sizes.length > 0;
+      const hasSizes = activeQuickViewProduct.sizes && activeQuickViewProduct.sizes.length > 0;
       const selectedSize = selectedSizeBtn ? selectedSizeBtn.textContent : null;
-      if (hasizes && !selectedSize) {
+      if (hasSizes && !selectedSize) {
         showToast('Please select a size first!', 'alert-circle');
         return;
       }
@@ -631,7 +694,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkoutItemsList.innerHTML = '';
     let subtotal = 0;
     
-    const itemsToCheckout = directItem ? [directItem] : state.cart;
+    const itemsToCheckout = directItem ? [directItem] : state.cart.filter(item => item.selected !== false);
 
     itemsToCheckout.forEach(item => {
       const itemSubtotal = parseFloat(item.price) * item.quantity;
@@ -640,11 +703,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const itemHTML = `
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-darkBorder rounded overflow-hidden flex-shrink-0">
-            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover">
+            <img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.title)}" class="w-full h-full object-cover">
           </div>
           <div class="flex-1 min-w-0">
-            <h4 class="text-[11px] font-bold uppercase tracking-wider truncate">${item.title}</h4>
-            <p class="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">${item.quantity} x ₹${item.price}</p>
+            <h4 class="text-[11px] font-bold uppercase tracking-wider truncate">${escapeHTML(item.title)}</h4>
+            <p class="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">${escapeHTML(item.quantity)} x ₹${escapeHTML(item.price)}</p>
           </div>
           <span class="text-[11px] font-bold text-zinc-900 dark:text-white flex-shrink-0">₹${itemSubtotal.toFixed(2)}</span>
         </div>
@@ -761,7 +824,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const date = new Date();
 
-    const itemsToCheckout = directCheckoutItem ? [directCheckoutItem] : state.cart;
+    const itemsToCheckout = directCheckoutItem ? [directCheckoutItem] : state.cart.filter(item => item.selected !== false);
     const subtotal = itemsToCheckout.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
     const shippingCost = 15.00;
     const totalCost = subtotal + shippingCost;
@@ -793,8 +856,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!directCheckoutItem) {
-      // Clear Cart completely if it wasn't a Buy Now
-      state.cart = [];
+      // Clear only checked out items from Cart
+      state.cart = state.cart.filter(item => item.selected === false);
       localStorage.setItem('cart', JSON.stringify(state.cart));
       renderCart();
     }
@@ -919,9 +982,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateUserHeader(name, pictureUrl) {
     if (pictureUrl) {
-      navSigninBtn.innerHTML = `<img src="${pictureUrl}" class="w-5 h-5 rounded-full object-cover flex-shrink-0"> <span class="truncate max-w-[80px]">${name.split(' ')[0]}</span>`;
+      navSigninBtn.innerHTML = `<img src="${escapeHTML(pictureUrl)}" class="w-5 h-5 rounded-full object-cover flex-shrink-0"> <span class="truncate max-w-[80px]">${escapeHTML(name.split(' ')[0])}</span>`;
     } else {
-      navSigninBtn.innerHTML = `<i data-lucide="user" class="w-3.5 h-3.5 flex-shrink-0"></i> <span>${name.split(' ')[0]}</span>`;
+      navSigninBtn.innerHTML = `<i data-lucide="user" class="w-3.5 h-3.5 flex-shrink-0"></i> <span>${escapeHTML(name.split(' ')[0])}</span>`;
     }
     navSigninBtn.classList.add('flex', 'items-center', 'gap-1.5');
     navOrdersBtn.classList.remove('hidden');
@@ -1072,9 +1135,9 @@ document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
     } else {
       state.orders.forEach(order => {
-        let itemsHtml = (order.items || []).map(i => `<li class="flex justify-between"><span>${i.title} (x${i.quantity})</span><span>₹${(parseFloat(i.price)*i.quantity).toFixed(2)}</span></li>`).join('');
+        let itemsHtml = (order.items || []).map(i => `<li class="flex justify-between"><span>${escapeHTML(i.title)} (x${escapeHTML(i.quantity)})</span><span>₹${escapeHTML((parseFloat(i.price)*i.quantity).toFixed(2))}</span></li>`).join('');
         if (!itemsHtml) {
-          itemsHtml = `<li class="flex justify-between"><span>Sandbox Item</span><span>₹${order.total}</span></li>`;
+          itemsHtml = `<li class="flex justify-between"><span>Sandbox Item</span><span>₹${escapeHTML(order.total)}</span></li>`;
         }
 
         let processingActive = true;
@@ -1092,11 +1155,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const orderHTML = `
           <div class="border border-zinc-200 dark:border-darkBorder rounded-xl p-4 bg-zinc-50/50 dark:bg-zinc-900/40 space-y-3">
             <div class="flex items-center justify-between text-xs">
-              <span class="font-bold text-zinc-950 dark:text-white">${order.id}</span>
+              <span class="font-bold text-zinc-950 dark:text-white">${escapeHTML(order.id)}</span>
               <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider
                 ${order.status === 'Delivered' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' :
                   order.status === 'Shipped'   ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400' :
-                  'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'}">${order.status}</span>
+                  'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'}">${escapeHTML(order.status)}</span>
             </div>
 
             <div class="h-px bg-zinc-200 dark:bg-darkBorder"></div>
@@ -1108,8 +1171,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="h-px bg-zinc-200 dark:border-darkBorder"></div>
 
             <div class="flex items-center justify-between text-[10px] font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
-              <span>Date: ${order.date}</span>
-              <span>Total Paid: ₹${order.total}</span>
+              <span>Date: ${escapeHTML(order.date)}</span>
+              <span>Total Paid: ₹${escapeHTML(order.total)}</span>
             </div>
 
             <!-- Tracking Timeline -->
