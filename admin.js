@@ -13,6 +13,17 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarCollapsed: false
   };
 
+  // Security Helper to prevent XSS
+  function escapeHTML(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   // Load fresh data from Supabase on startup
   async function loadRemoteData() {
     if (!window.DB) return;
@@ -112,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { hash: '#orders', el: document.getElementById('view-orders'), render: renderOrdersView },
     { hash: '#customers', el: document.getElementById('view-customers'), render: renderCustomers },
     { hash: '#logins', el: document.getElementById('view-logins'), render: renderLogins },
-    { hash: '#reports', el: document.getElementById('view-reports') },
     { hash: '#settings', el: document.getElementById('view-settings') },
     { hash: '#banner', el: document.getElementById('view-banner'), render: renderBannerSettings }
   ];
@@ -258,12 +268,12 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.innerHTML += `
         <div class="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors border-b border-slate-100 dark:border-slate-700/50 last:border-0">
           <div>
-            <p class="text-sm font-bold text-slate-900 dark:text-white">${o.id}</p>
-            <p class="text-xs text-slate-500">${o.customerName}</p>
+            <p class="text-sm font-bold text-slate-900 dark:text-white">${escapeHTML(o.id)}</p>
+            <p class="text-xs text-slate-500">${escapeHTML(o.customerName)}</p>
           </div>
           <div class="text-right">
-            <p class="text-sm font-bold text-slate-900 dark:text-white">₹${o.total}</p>
-            <p class="text-xs ${o.status === 'Delivered' ? 'text-green-500' : 'text-brand-500'}">${o.status}</p>
+            <p class="text-sm font-bold text-slate-900 dark:text-white">₹${escapeHTML(o.total)}</p>
+            <p class="text-xs ${o.status === 'Delivered' ? 'text-green-500' : 'text-brand-500'}">${escapeHTML(o.status)}</p>
           </div>
         </div>
       `;
@@ -279,13 +289,63 @@ document.addEventListener('DOMContentLoaded', () => {
     const textColor = isDark ? '#cbd5e1' : '#64748b';
     const gridColor = isDark ? '#334155' : '#e2e8f0';
 
+    // Parse actual sales per month from state.orders
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthlySales = {};
+    const labels = [];
+    const today = new Date();
+
+    // Initialize the last 6 months
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const mName = monthNames[d.getMonth()];
+      labels.push(mName);
+      monthlySales[mName] = 0;
+    }
+
+    // Populate sales data from orders
+    state.orders.forEach(o => {
+      let monthStr = null;
+      if (o.date) {
+        // e.g. "Jun 25, 09:20 PM" or "Jun 25, 2026"
+        for (const m of monthNames) {
+          if (o.date.includes(m)) {
+            monthStr = m;
+            break;
+          }
+        }
+      }
+      
+      // Fallback parser
+      if (!monthStr && o.date) {
+        const parsedDate = new Date(o.date);
+        if (!isNaN(parsedDate.getTime())) {
+          monthStr = monthNames[parsedDate.getMonth()];
+        }
+      }
+
+      // If no valid month parsed, default to current month
+      if (!monthStr) {
+        monthStr = monthNames[today.getMonth()];
+      }
+
+      const totalVal = parseFloat(o.total) || 0;
+      if (monthlySales[monthStr] !== undefined) {
+        monthlySales[monthStr] += totalVal;
+      } else {
+        monthlySales[monthStr] = totalVal;
+      }
+    });
+
+    const data = labels.map(label => monthlySales[label] || 0);
+
     salesChartInst = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: labels,
         datasets: [{
-          label: 'Revenue',
-          data: [1200, 1900, 1500, 2200, 1800, 2800],
+          label: 'Revenue (₹)',
+          data: data,
           borderColor: '#4f46e5',
           backgroundColor: isDark ? 'rgba(79, 70, 229, 0.2)' : 'rgba(79, 70, 229, 0.1)',
           borderWidth: 2,
@@ -296,10 +356,27 @@ document.addEventListener('DOMContentLoaded', () => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: { 
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `Revenue: ₹${context.raw.toFixed(2)}`;
+              }
+            }
+          }
+        },
         scales: {
           x: { grid: { display: false }, ticks: { color: textColor } },
-          y: { grid: { color: gridColor }, ticks: { color: textColor } }
+          y: { 
+            grid: { color: gridColor }, 
+            ticks: { 
+              color: textColor,
+              callback: function(value) {
+                return '₹' + value;
+              }
+            } 
+          }
         }
       }
     });
@@ -315,13 +392,13 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.innerHTML += `
         <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
           <td class="px-6 py-4 flex items-center gap-3">
-            <img src="${p.image}" class="w-10 h-10 rounded-lg object-cover bg-slate-100">
+            <img src="${escapeHTML(p.image)}" class="w-10 h-10 rounded-lg object-cover bg-slate-100">
             <div>
-              <p class="font-semibold text-slate-900 dark:text-white">${p.title}</p>
-              <p class="text-xs text-slate-500">ID: ${p.id}</p>
+              <p class="font-semibold text-slate-900 dark:text-white">${escapeHTML(p.title)}</p>
+              <p class="text-xs text-slate-500">ID: ${escapeHTML(p.id)}</p>
             </div>
           </td>
-          <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full">${p.category}</span></td>
+          <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full">${escapeHTML(p.category)}</span></td>
           <td class="px-6 py-4 font-semibold text-slate-900 dark:text-white">₹${parseFloat(p.price).toFixed(2)}</td>
           <td class="px-6 py-4"><span class="text-green-600 dark:text-green-400 font-medium text-sm flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4"></i> In Stock</span></td>
           <td class="px-6 py-4 text-right space-x-2">
@@ -424,29 +501,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
       tbody.innerHTML += `
         <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group">
-          <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">${o.id}</td>
+          <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">${escapeHTML(o.id)}</td>
           <td class="px-6 py-4">
-            <p class="font-medium text-slate-900 dark:text-white">${o.customerName}</p>
-            <p class="text-xs text-slate-500">${o.customerEmail}</p>
-            <p class="text-xs text-slate-500">${o.customerPhone || 'No Phone'}</p>
+            <p class="font-medium text-slate-900 dark:text-white">${escapeHTML(o.customerName)}</p>
+            <p class="text-xs text-slate-500">${escapeHTML(o.customerEmail)}</p>
+            <p class="text-xs text-slate-500">${escapeHTML(o.customerPhone) || 'No Phone'}</p>
           </td>
           <td class="px-6 py-4">
             <div class="max-w-[200px] whitespace-normal">
-              <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 mb-1 border border-slate-200 dark:border-slate-600">${o.paymentMethod || 'N/A'}</span>
-              <p class="text-[10px] text-slate-500 line-clamp-2" title="${o.customerAddress}">${o.customerAddress || 'No Address'}</p>
+              <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 mb-1 border border-slate-200 dark:border-slate-600">${escapeHTML(o.paymentMethod) || 'N/A'}</span>
+              <p class="text-[10px] text-slate-500 line-clamp-2" title="${escapeHTML(o.customerAddress)}">${escapeHTML(o.customerAddress) || 'No Address'}</p>
             </div>
           </td>
-          <td class="px-6 py-4 text-slate-500">${o.date}</td>
+          <td class="px-6 py-4 text-slate-500">${escapeHTML(o.date)}</td>
           <td class="px-6 py-4">
-            <select onchange="updateOrderStatus('${o.id}', this.value)" class="text-xs font-semibold px-2.5 py-1 rounded-full border-0 ${badgeCls} cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500/50 appearance-none text-center">
+            <select onchange="updateOrderStatus('${escapeHTML(o.id)}', this.value)" class="text-xs font-semibold px-2.5 py-1 rounded-full border-0 ${badgeCls} cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500/50 appearance-none text-center">
               <option value="Processing" ${o.status==='Processing'?'selected':''} class="text-slate-900">Processing</option>
               <option value="Shipped" ${o.status==='Shipped'?'selected':''} class="text-slate-900">Shipped</option>
               <option value="Delivered" ${o.status==='Delivered'?'selected':''} class="text-slate-900">Delivered</option>
             </select>
           </td>
-          <td class="px-6 py-4 font-bold text-slate-900 dark:text-white text-right">₹${o.total}</td>
+          <td class="px-6 py-4 font-bold text-slate-900 dark:text-white text-right">₹${escapeHTML(o.total)}</td>
           <td class="px-6 py-4 text-right">
-            <button onclick="deleteOrder('${o.id}')"
+            <button onclick="deleteOrder('${escapeHTML(o.id)}')"
               title="Delete Order"
               class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider text-red-500 border border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors opacity-0 group-hover:opacity-100">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
@@ -514,13 +591,13 @@ document.addEventListener('DOMContentLoaded', () => {
     registrations.forEach(reg => {
       tbody.innerHTML += `
         <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group">
-          <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">${reg.name || 'N/A'}</td>
-          <td class="px-6 py-4 text-slate-500">${reg.email || 'N/A'}</td>
-          <td class="px-6 py-4 text-slate-500">${reg.phone || 'N/A'}</td>
-          <td class="px-6 py-4 text-slate-500">${reg.gender || 'N/A'}</td>
-          <td class="px-6 py-4 text-slate-500">${reg.date || 'N/A'}</td>
+          <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">${escapeHTML(reg.name) || 'N/A'}</td>
+          <td class="px-6 py-4 text-slate-500">${escapeHTML(reg.email) || 'N/A'}</td>
+          <td class="px-6 py-4 text-slate-500">${escapeHTML(reg.phone) || 'N/A'}</td>
+          <td class="px-6 py-4 text-slate-500">${escapeHTML(reg.gender) || 'N/A'}</td>
+          <td class="px-6 py-4 text-slate-500">${escapeHTML(reg.date) || 'N/A'}</td>
           <td class="px-6 py-4 text-right">
-            <button onclick="deleteRegistration('${reg.email}')" title="Delete Registration" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider text-red-500 border border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors opacity-0 group-hover:opacity-100">
+            <button onclick="deleteRegistration('${escapeHTML(reg.email)}')" title="Delete Registration" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider text-red-500 border border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors opacity-0 group-hover:opacity-100">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
             </button>
           </td>
@@ -567,11 +644,11 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.innerHTML += `
         <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
           <td class="px-6 py-4 flex items-center gap-3">
-            <img src="${login.picture || 'https://via.placeholder.com/40'}" class="w-8 h-8 rounded-full object-cover bg-slate-100 dark:bg-slate-800">
-            <span class="font-bold text-slate-900 dark:text-white">${login.name || 'Guest'}</span>
+            <img src="${escapeHTML(login.picture) || 'https://via.placeholder.com/40'}" class="w-8 h-8 rounded-full object-cover bg-slate-100 dark:bg-slate-800">
+            <span class="font-bold text-slate-900 dark:text-white">${escapeHTML(login.name) || 'Guest'}</span>
           </td>
-          <td class="px-6 py-4 text-slate-500">${login.email || 'N/A'}</td>
-          <td class="px-6 py-4 text-slate-500">${login.time}</td>
+          <td class="px-6 py-4 text-slate-500">${escapeHTML(login.email) || 'N/A'}</td>
+          <td class="px-6 py-4 text-slate-500">${escapeHTML(login.time)}</td>
         </tr>
       `;
     });
