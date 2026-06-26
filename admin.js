@@ -402,8 +402,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <td class="px-6 py-4 font-semibold text-slate-900 dark:text-white">₹${parseFloat(p.price).toFixed(2)}</td>
           <td class="px-6 py-4"><span class="text-green-600 dark:text-green-400 font-medium text-sm flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4"></i> In Stock</span></td>
           <td class="px-6 py-4 text-right space-x-2">
-            <button onclick="editProduct(${p.id})" class="text-primary-600 hover:text-primary-800 dark:hover:text-primary-400 p-1"><i data-lucide="edit" class="w-4 h-4"></i></button>
-            <button onclick="deleteProduct(${p.id})" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            <button onclick="editProduct('${escapeHTML(p.id)}')" class="text-primary-600 hover:text-primary-800 dark:hover:text-primary-400 p-1"><i data-lucide="edit" class="w-4 h-4"></i></button>
+            <button onclick="deleteProduct('${escapeHTML(p.id)}')" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
           </td>
         </tr>
       `;
@@ -422,10 +422,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- PRODUCT FORM LOGIC (Editing & Deleting) ---
   window.editProduct = function(id) {
-    const p = state.products.find(x => x.id === id);
+    const p = state.products.find(x => x.id != null && x.id.toString() === id.toString());
     if (!p) return;
     
-    state.editingProductId = id;
+    state.editingProductId = id != null ? id.toString() : null;
     
     // Switch to Add Product view
     switchTab('#add-product');
@@ -531,7 +531,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.deleteProduct = async function(id) {
     if (confirm('Delete this product?')) {
-      state.products = state.products.filter(p => p.id !== id);
+      state.products = state.products.filter(p => p.id == null || p.id.toString() !== id.toString());
       if (window.DB) {
         await window.DB.deleteProduct(id);
       } else {
@@ -975,7 +975,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let product;
     if (state.editingProductId) {
-      const idx = state.products.findIndex(p => p.id === state.editingProductId);
+      const idx = state.products.findIndex(p => p.id != null && p.id.toString() === state.editingProductId.toString());
       product = { 
         ...state.products[idx], 
         title, 
