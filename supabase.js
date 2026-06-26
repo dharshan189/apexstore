@@ -81,9 +81,9 @@ async function db_getProducts() {
 async function db_upsertProduct(product) {
   const sb = await getClient();
 
-  // Always update local cache
+  // Always update local cache (compare as strings to handle number/string ID mismatch)
   const local = JSON.parse(localStorage.getItem('products')) || [];
-  const idx = local.findIndex(p => p.id === product.id);
+  const idx = local.findIndex(p => p.id != null && p.id.toString() === product.id.toString());
   if (idx > -1) local[idx] = product; else local.unshift(product);
   localStorage.setItem('products', JSON.stringify(local));
 
@@ -104,9 +104,9 @@ async function db_upsertProduct(product) {
  * @param {number|string} id
  */
 async function db_deleteProduct(id) {
-  // Update local cache
+  // Update local cache (compare as strings to handle number/string ID mismatch)
   const local = JSON.parse(localStorage.getItem('products')) || [];
-  localStorage.setItem('products', JSON.stringify(local.filter(p => p.id !== id)));
+  localStorage.setItem('products', JSON.stringify(local.filter(p => p.id == null || p.id.toString() !== id.toString())));
 
   const sb = await getClient();
   if (!sb) return;
