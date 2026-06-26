@@ -68,9 +68,19 @@ async function db_getProducts() {
 
   if (error) { dbErr('getProducts', error); return JSON.parse(localStorage.getItem('products')) || []; }
 
-  // Mirror to localStorage as cache
-  localStorage.setItem('products', JSON.stringify(data));
-  return data;
+  // Merge: Supabase is source-of-truth for core fields,
+  // but localStorage may hold richer extra fields (specs, brand, etc.)
+  // that haven't been synced to Supabase yet.
+  const localProducts = JSON.parse(localStorage.getItem('products')) || [];
+  const merged = data.map(sbProduct => {
+    const lp = localProducts.find(p => p.id != null && p.id.toString() === sbProduct.id.toString());
+    // Spread local first so Supabase core values (price, title, etc.) win
+    return lp ? { ...lp, ...sbProduct } : sbProduct;
+  });
+
+  // Mirror merged result to localStorage as cache
+  localStorage.setItem('products', JSON.stringify(merged));
+  return merged;
 }
 
 /**
@@ -81,7 +91,7 @@ async function db_getProducts() {
 async function db_upsertProduct(product) {
   const sb = await getClient();
 
-  // Always update local cache (compare as strings to handle number/string ID mismatch)
+  // ALWAYS update local cache first with the full product (all fields)
   const local = JSON.parse(localStorage.getItem('products')) || [];
   const idx = local.findIndex(p => p.id != null && p.id.toString() === product.id.toString());
   if (idx > -1) local[idx] = product; else local.unshift(product);
@@ -89,14 +99,46 @@ async function db_upsertProduct(product) {
 
   if (!sb) return product;
 
+  // Try upserting the full product payload
   const { data, error } = await sb
     .from('products')
     .upsert(product, { onConflict: 'id' })
     .select()
     .single();
 
-  if (error) { dbErr('upsertProduct', error); return product; }
-  return data;
+  if (!error) {
+    // Merge Supabase response back over the local full copy to keep extra fields
+    const refreshed = { ...product, ...data };
+    const localAfter = JSON.parse(localStorage.getItem('products')) || [];
+    const i2 = localAfter.findIndex(p => p.id != null && p.id.toString() === product.id.toString());
+    if (i2 > -1) localAfter[i2] = refreshed; else localAfter.unshift(refreshed);
+    localStorage.setItem('products', JSON.stringify(localAfter));
+    return refreshed;
+  }
+
+  // Full upsert failed (e.g. table missing new columns) — retry with core fields only
+  dbErr('upsertProduct (full)', error);
+  const coreProduct = {
+    id:          product.id,
+    title:       product.title,
+    price:       product.price,
+    category:    product.category,
+    description: product.description,
+    image:       product.image,
+    images:      product.images,
+    colors:      product.colors,
+    sizes:       product.sizes
+  };
+  const { error: coreError } = await sb
+    .from('products')
+    .upsert(coreProduct, { onConflict: 'id' })
+    .select()
+    .single();
+
+  if (coreError) dbErr('upsertProduct (core fallback)', coreError);
+
+  // Return the full local product regardless
+  return product;
 }
 
 /**
