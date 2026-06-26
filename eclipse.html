@@ -474,14 +474,14 @@
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Brand</label>
-                      <input type="text" placeholder="Enter brand name"
+                      <input type="text" id="new-prod-brand" placeholder="Enter brand name"
                         class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors dark:text-white outline-none">
                     </div>
                     <div>
                       <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">SKU</label>
                       <div class="flex">
                         <input type="text" id="sku-field" value="CLO-2026-X89" readonly
-                          class="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-600 rounded-l-lg text-slate-500 dark:text-slate-400 font-mono outline-none">
+                           class="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-600 rounded-l-lg text-slate-500 dark:text-slate-400 font-mono outline-none">
                         <button type="button"
                           onclick="document.getElementById('sku-field').value='CLO-'+Date.now().toString().slice(-6)"
                           class="px-3 border border-l-0 border-slate-300 dark:border-slate-600 rounded-r-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors">
@@ -504,7 +504,7 @@
                     </div>
                     <div>
                       <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Subcategory</label>
-                      <select
+                      <select id="new-prod-subcategory"
                         class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors dark:text-white outline-none appearance-none">
                         <option>T-Shirts & Tops</option>
                         <option>Hoodies & Sweatshirts</option>
@@ -598,14 +598,14 @@
                   <div>
                     <label
                       class="block text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider font-semibold">Material</label>
-                    <input type="text" value="100% Organic Cotton"
+                    <input type="text" id="new-prod-material" value="100% Organic Cotton"
                       class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg outline-none dark:text-white">
                   </div>
                   <div>
                     <label
                       class="block text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider font-semibold">Fit
                       Type</label>
-                    <select
+                    <select id="new-prod-fit"
                       class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg outline-none dark:text-white">
                       <option>Oversized Fit</option>
                       <option>Regular Fit</option>
@@ -616,7 +616,7 @@
                     <label
                       class="block text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider font-semibold">Sleeve
                       Type</label>
-                    <select
+                    <select id="new-prod-sleeve"
                       class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg outline-none dark:text-white">
                       <option>Long Sleeve</option>
                       <option>Short Sleeve</option>
@@ -627,26 +627,26 @@
                     <label
                       class="block text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider font-semibold">Neck
                       Type</label>
-                    <input type="text" value="Crew Neck"
+                    <input type="text" id="new-prod-neck" value="Crew Neck"
                       class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg outline-none dark:text-white">
                   </div>
                   <div>
                     <label
                       class="block text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider font-semibold">Occasion</label>
-                    <input type="text" value="Casual Wear"
+                    <input type="text" id="new-prod-occasion" value="Casual Wear"
                       class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg outline-none dark:text-white">
                   </div>
                   <div>
                     <label
                       class="block text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider font-semibold">Origin</label>
-                    <input type="text" value="Portugal"
+                    <input type="text" id="new-prod-origin" value="Portugal"
                       class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg outline-none dark:text-white">
                   </div>
                   <div class="md:col-span-2 lg:col-span-3">
                     <label
                       class="block text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider font-semibold">Washing
                       Instructions</label>
-                    <input type="text" value="Machine wash cold. Do not tumble dry."
+                    <input type="text" id="new-prod-washing" value="Machine wash cold. Do not tumble dry."
                       class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg outline-none dark:text-white">
                   </div>
                 </div>
@@ -677,7 +677,7 @@
                     </div>
                     <div>
                       <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Tax / GST (%)</label>
-                      <input type="number" value="10"
+                      <input type="number" id="price-tax" value="10"
                         class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-white">
                     </div>
                   </div>
@@ -698,18 +698,18 @@
                   <div>
                     <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Total Stock
                       Quantity</label>
-                    <input type="number" value="150"
+                    <input type="number" id="inventory-stock" value="150"
                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-white">
                   </div>
                   <div>
                     <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Low Stock Alert
                       Level</label>
-                    <input type="number" value="10"
+                    <input type="number" id="inventory-low-stock" value="10"
                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-white">
                   </div>
                   <div>
                     <label class="block font-medium text-slate-700 dark:text-slate-300 mb-1">Availability Status</label>
-                    <select
+                    <select id="inventory-status"
                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-white appearance-none">
                       <option>In Stock</option>
                       <option>Out of Stock</option>
@@ -730,13 +730,13 @@
                   <div>
                     <label class="block font-medium text-slate-700 dark:text-slate-300 mb-2 text-sm">Publishing
                       Status</label>
-                    <div class="flex gap-2">
-                      <button type="button"
-                        class="flex-1 py-1.5 border border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 rounded-md text-sm font-semibold transition-colors">Active</button>
-                      <button type="button"
-                        class="flex-1 py-1.5 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 rounded-md text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Draft</button>
-                      <button type="button"
-                        class="flex-1 py-1.5 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 rounded-md text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Hidden</button>
+                    <div class="flex gap-2" id="status-btn-container">
+                      <button type="button" data-status="Active"
+                        class="status-btn flex-1 py-1.5 border border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 rounded-md text-sm font-semibold transition-colors">Active</button>
+                      <button type="button" data-status="Draft"
+                        class="status-btn flex-1 py-1.5 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 rounded-md text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Draft</button>
+                      <button type="button" data-status="Hidden"
+                        class="status-btn flex-1 py-1.5 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 rounded-md text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Hidden</button>
                     </div>
                   </div>
 
