@@ -283,22 +283,40 @@ document.addEventListener('DOMContentLoaded', () => {
         badgesHTML += `<span class="bg-blue-600 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">Featured</span>`;
       }
 
+      // Discount badge (top-right of image)
+      const discountValue = parseFloat(product.discount) || 0;
+      const discountBadgeHTML = discountValue > 0
+        ? `<div class="absolute top-2 right-2 z-10">
+             <span class="bg-green-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded shadow-md">${discountValue}% OFF</span>
+           </div>`
+        : '';
+
+      // Price row — show struck-through original price when discount exists
+      const priceHTML = discountValue > 0 && product.originalPrice
+        ? `<div class="flex items-baseline gap-1.5">
+             <span class="text-sm font-bold text-zinc-900 dark:text-white">₹${escapeHTML(product.price)}</span>
+             <span class="text-xs text-zinc-400 line-through">₹${parseFloat(product.originalPrice).toFixed(2)}</span>
+           </div>`
+        : `<span class="text-sm font-bold text-zinc-900 dark:text-white">₹${escapeHTML(product.price)}</span>`;
+
       const cardHTML = `
         <div class="group flex flex-col cursor-pointer transition-opacity">
           <!-- Product Image (click opens quick view) -->
           <div class="relative overflow-hidden bg-zinc-100 dark:bg-zinc-900 aspect-[4/5] rounded-lg quick-view-trigger" data-id="${escapeHTML(product.id)}">
             <img src="${escapeHTML(hasImage)}" alt="${escapeHTML(product.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-            <!-- Badges -->
+            <!-- Top-left badges (New, Best Seller, Featured) -->
             <div class="absolute top-2 left-2 flex flex-col gap-1 z-10">
               ${badgesHTML}
             </div>
+            <!-- Top-right discount badge -->
+            ${discountBadgeHTML}
           </div>
 
           <!-- Product Info -->
           <div class="mt-3 flex flex-col space-y-1 quick-view-trigger" data-id="${escapeHTML(product.id)}">
             <div class="text-[10px] text-zinc-400 uppercase tracking-wider">${escapeHTML(product.category)}</div>
             <h3 class="font-semibold text-sm text-zinc-900 dark:text-white leading-tight">${escapeHTML(product.title)}</h3>
-            <span class="text-sm font-bold text-zinc-900 dark:text-white">₹${escapeHTML(product.price)}</span>
+            ${priceHTML}
           </div>
 
           <!-- Always-visible Action Buttons -->
@@ -318,6 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       productsGrid.insertAdjacentHTML('beforeend', cardHTML);
     });
+
 
     lucide.createIcons();
 
