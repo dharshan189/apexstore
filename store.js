@@ -270,13 +270,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filtered.forEach(product => {
       const hasImage = product.image ? product.image : '';
+      
+      // Generate dynamic badges HTML based on admin panel flags
+      let badgesHTML = '';
+      if (product.newArrival !== false) { // Default is true for new arrival
+        badgesHTML += `<span class="bg-black text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">New</span>`;
+      }
+      if (product.bestSeller) {
+        badgesHTML += `<span class="bg-amber-600 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">Best Seller</span>`;
+      }
+      if (product.featured) {
+        badgesHTML += `<span class="bg-blue-600 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">Featured</span>`;
+      }
+
       const cardHTML = `
         <div class="group flex flex-col cursor-pointer transition-opacity">
           <!-- Product Image (click opens quick view) -->
           <div class="relative overflow-hidden bg-zinc-100 dark:bg-zinc-900 aspect-[4/5] rounded-lg quick-view-trigger" data-id="${escapeHTML(product.id)}">
             <img src="${escapeHTML(hasImage)}" alt="${escapeHTML(product.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-            <!-- Badge -->
-            <span class="absolute top-2 left-2 bg-black text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">New</span>
+            <!-- Badges -->
+            <div class="absolute top-2 left-2 flex flex-col gap-1 z-10">
+              ${badgesHTML}
+            </div>
           </div>
 
           <!-- Product Info -->
@@ -548,6 +563,128 @@ document.addEventListener('DOMContentLoaded', () => {
     productModalPrice.textContent = `₹${product.price}`;
     productModalDesc.textContent = product.description || "";
     pmQty.textContent = '1';
+
+    // Subcategory
+    const subcatEl = document.getElementById('product-modal-subcategory');
+    const dividerEl = document.getElementById('product-modal-subcat-divider');
+    if (subcatEl && dividerEl) {
+      if (product.subcategory) {
+        subcatEl.textContent = product.subcategory;
+        subcatEl.classList.remove('hidden');
+        dividerEl.classList.remove('hidden');
+      } else {
+        subcatEl.classList.add('hidden');
+        dividerEl.classList.add('hidden');
+      }
+    }
+
+    // SKU
+    const skuEl = document.getElementById('product-modal-sku');
+    if (skuEl) {
+      if (product.sku) {
+        skuEl.textContent = `SKU: ${product.sku}`;
+        skuEl.classList.remove('hidden');
+      } else {
+        skuEl.classList.add('hidden');
+      }
+    }
+
+    // Brand
+    const brandEl = document.getElementById('product-modal-brand');
+    if (brandEl) {
+      if (product.brand) {
+        brandEl.textContent = product.brand;
+        brandEl.classList.remove('hidden');
+      } else {
+        brandEl.classList.add('hidden');
+      }
+    }
+
+    // Pricing (Original, discount)
+    const origPriceEl = document.getElementById('product-modal-price-original');
+    const discountEl = document.getElementById('product-modal-discount');
+    if (origPriceEl && discountEl) {
+      if (product.discount && parseFloat(product.discount) > 0 && product.originalPrice) {
+        origPriceEl.textContent = `₹${parseFloat(product.originalPrice).toFixed(2)}`;
+        origPriceEl.classList.remove('hidden');
+        discountEl.textContent = `${parseFloat(product.discount)}% OFF`;
+        discountEl.classList.remove('hidden');
+      } else {
+        origPriceEl.classList.add('hidden');
+        discountEl.classList.add('hidden');
+      }
+    }
+
+    // Stock & Availability
+    const stockContainer = document.getElementById('product-modal-stock-container');
+    const stockStatus = document.getElementById('product-modal-stock-status');
+    const stockQty = document.getElementById('product-modal-stock-qty');
+    if (stockContainer && stockStatus && stockQty) {
+      if (product.availabilityStatus || product.stock !== undefined) {
+        const avail = product.availabilityStatus || 'In Stock';
+        stockStatus.textContent = avail;
+        
+        // Colors & backgrounds for availability status
+        stockStatus.className = 'font-bold px-2 py-0.5 rounded-full text-[10px] ';
+        if (avail === 'In Stock') {
+          stockStatus.className += 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400';
+        } else if (avail === 'Out of Stock') {
+          stockStatus.className += 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400';
+        } else {
+          stockStatus.className += 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400';
+        }
+
+        if (product.stock !== undefined && product.stock !== null) {
+          stockQty.textContent = `(${product.stock} left)`;
+          stockQty.classList.remove('hidden');
+        } else {
+          stockQty.classList.add('hidden');
+        }
+        stockContainer.classList.remove('hidden');
+      } else {
+        stockContainer.classList.add('hidden');
+      }
+    }
+
+    // Specifications
+    const specsContainer = document.getElementById('product-modal-specs-container');
+    const specMat = document.getElementById('pm-spec-material');
+    const specFit = document.getElementById('pm-spec-fit');
+    const specSleeve = document.getElementById('pm-spec-sleeve');
+    const specNeck = document.getElementById('pm-spec-neck');
+    const specOccasion = document.getElementById('pm-spec-occasion');
+    const specOrigin = document.getElementById('pm-spec-origin');
+    const specWashing = document.getElementById('pm-spec-washing');
+
+    if (specsContainer) {
+      let hasSpecs = false;
+
+      // Helper to show/hide specific spec rows
+      const setSpecField = (val, el, rowId) => {
+        const row = document.getElementById(rowId);
+        if (val && el) {
+          el.textContent = val;
+          if (row) row.classList.remove('hidden');
+          hasSpecs = true;
+        } else if (row) {
+          row.classList.add('hidden');
+        }
+      };
+
+      setSpecField(product.material, specMat, 'spec-material-row');
+      setSpecField(product.fitType, specFit, 'spec-fit-row');
+      setSpecField(product.sleeveType, specSleeve, 'spec-sleeve-row');
+      setSpecField(product.neckType, specNeck, 'spec-neck-row');
+      setSpecField(product.occasion, specOccasion, 'spec-occasion-row');
+      setSpecField(product.origin, specOrigin, 'spec-origin-row');
+      setSpecField(product.washingInstructions, specWashing, 'spec-washing-row');
+
+      if (hasSpecs) {
+        specsContainer.classList.remove('hidden');
+      } else {
+        specsContainer.classList.add('hidden');
+      }
+    }
 
     const thumbnailsContainer = document.getElementById('product-modal-thumbnails');
     if (thumbnailsContainer) {
