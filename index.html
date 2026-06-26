@@ -549,17 +549,74 @@
       <!-- Right: Details -->
       <div class="md:w-1/2 p-6 md:p-8 flex flex-col justify-between overflow-y-auto">
         <div class="space-y-4">
-          <span id="product-modal-category"
-            class="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Category</span>
+          <div class="flex items-center justify-between text-[9px] font-bold uppercase tracking-widest text-zinc-400">
+            <div>
+              <span id="product-modal-category">Category</span>
+              <span id="product-modal-subcat-divider" class="mx-1.5 hidden">•</span>
+              <span id="product-modal-subcategory" class="hidden">Subcategory</span>
+            </div>
+            <span id="product-modal-sku" class="font-mono hidden">SKU: —</span>
+          </div>
+          
+          <div id="product-modal-brand" class="text-xs font-bold text-blue-500 uppercase tracking-widest hidden">Brand</div>
+
           <h2 id="product-modal-title"
             class="text-2xl md:text-3xl font-bold uppercase text-zinc-950 dark:text-white tracking-wider">Product Title
           </h2>
-          <p id="product-modal-price" class="text-lg md:text-xl font-bold text-zinc-900 dark:text-white">₹0.00</p>
+          
+          <div class="flex items-baseline gap-2">
+            <span id="product-modal-price" class="text-lg md:text-xl font-bold text-zinc-900 dark:text-white">₹0.00</span>
+            <span id="product-modal-price-original" class="text-xs text-zinc-400 line-through hidden">₹0.00</span>
+            <span id="product-modal-discount" class="text-xs text-green-600 dark:text-green-400 font-bold hidden">0% OFF</span>
+          </div>
+
           <div class="h-px bg-zinc-200 dark:bg-darkBorder"></div>
 
           <div class="space-y-2">
             <h4 class="text-xs font-bold uppercase text-zinc-400 tracking-wider">Description</h4>
             <p id="product-modal-desc" class="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed"></p>
+          </div>
+
+          <!-- Stock & Availability Status -->
+          <div id="product-modal-stock-container" class="flex items-center gap-2 pt-1 text-xs hidden">
+            <span class="text-zinc-400">Availability:</span>
+            <span id="product-modal-stock-status" class="font-bold px-2 py-0.5 rounded-full text-[10px]">In Stock</span>
+            <span id="product-modal-stock-qty" class="text-zinc-400 text-[10px] font-medium">(150 left)</span>
+          </div>
+
+          <!-- Specifications Section -->
+          <div id="product-modal-specs-container" class="space-y-2 pt-2 border-t border-zinc-150 dark:border-darkBorder hidden">
+            <h4 class="text-xs font-bold uppercase text-zinc-400 tracking-wider">Specifications</h4>
+            <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-zinc-550 dark:text-zinc-400">
+              <div class="flex justify-between border-b border-zinc-100 dark:border-darkBorder/50 pb-1" id="spec-material-row">
+                <span class="font-medium text-zinc-400">Material</span>
+                <span id="pm-spec-material" class="font-bold text-zinc-800 dark:text-zinc-200">—</span>
+              </div>
+              <div class="flex justify-between border-b border-zinc-100 dark:border-darkBorder/50 pb-1" id="spec-fit-row">
+                <span class="font-medium text-zinc-400">Fit Type</span>
+                <span id="pm-spec-fit" class="font-bold text-zinc-800 dark:text-zinc-200">—</span>
+              </div>
+              <div class="flex justify-between border-b border-zinc-100 dark:border-darkBorder/50 pb-1" id="spec-sleeve-row">
+                <span class="font-medium text-zinc-400">Sleeve Type</span>
+                <span id="pm-spec-sleeve" class="font-bold text-zinc-800 dark:text-zinc-200">—</span>
+              </div>
+              <div class="flex justify-between border-b border-zinc-100 dark:border-darkBorder/50 pb-1" id="spec-neck-row">
+                <span class="font-medium text-zinc-400">Neck Type</span>
+                <span id="pm-spec-neck" class="font-bold text-zinc-800 dark:text-zinc-200">—</span>
+              </div>
+              <div class="flex justify-between border-b border-zinc-100 dark:border-darkBorder/50 pb-1" id="spec-occasion-row">
+                <span class="font-medium text-zinc-400">Occasion</span>
+                <span id="pm-spec-occasion" class="font-bold text-zinc-800 dark:text-zinc-200">—</span>
+              </div>
+              <div class="flex justify-between border-b border-zinc-100 dark:border-darkBorder/50 pb-1" id="spec-origin-row">
+                <span class="font-medium text-zinc-400">Origin</span>
+                <span id="pm-spec-origin" class="font-bold text-zinc-800 dark:text-zinc-200">—</span>
+              </div>
+              <div class="col-span-2 flex justify-between border-b border-zinc-100 dark:border-darkBorder/50 pb-1" id="spec-washing-row">
+                <span class="font-medium text-zinc-400">Washing</span>
+                <span id="pm-spec-washing" class="font-bold text-zinc-800 dark:text-zinc-200 text-right">—</span>
+              </div>
+            </div>
           </div>
 
           <!-- Colors -->
