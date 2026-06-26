@@ -364,10 +364,17 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // Buy Now buttons
+    // Buy Now buttons — require login
     document.querySelectorAll('.buy-now-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        // Auth guard: redirect to login if not signed in
+        const savedUser = JSON.parse(localStorage.getItem('auth_user'));
+        const isLoggedIn = savedUser && savedUser.name && savedUser.email && savedUser.email !== 'N/A';
+        if (!isLoggedIn) {
+          openAuthModal();
+          return;
+        }
         const id = e.currentTarget.getAttribute('data-id');
         const product = allProducts.find(p => p.id.toString() === id.toString());
         if (product) openProductModal(product, true); // true = buy now mode
@@ -806,6 +813,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   pmAddToCart.addEventListener('click', () => {
     if (activeQuickViewProduct) {
+      // Auth guard
+      const savedUser = JSON.parse(localStorage.getItem('auth_user'));
+      const isLoggedIn = savedUser && savedUser.name && savedUser.email && savedUser.email !== 'N/A';
+      if (!isLoggedIn) {
+        closeProductModal();
+        openAuthModal();
+        return;
+      }
       const sizesList = document.getElementById('product-modal-sizes');
       const selectedSizeBtn = sizesList ? sizesList.querySelector('.size-option[class*="bg-zinc-950"]') : null;
       const hasSizes = activeQuickViewProduct.sizes && activeQuickViewProduct.sizes.length > 0;
@@ -824,6 +839,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (pmBuyNow) {
     pmBuyNow.addEventListener('click', () => {
       if (activeQuickViewProduct) {
+        // Auth guard
+        const savedUser = JSON.parse(localStorage.getItem('auth_user'));
+        const isLoggedIn = savedUser && savedUser.name && savedUser.email && savedUser.email !== 'N/A';
+        if (!isLoggedIn) {
+          closeProductModal();
+          openAuthModal();
+          return;
+        }
         const sizesList = document.getElementById('product-modal-sizes');
         const selectedSizeBtn = sizesList ? sizesList.querySelector('.size-option[class*="bg-zinc-950"]') : null;
         const hasizes = activeQuickViewProduct.sizes && activeQuickViewProduct.sizes.length > 0;
@@ -908,6 +931,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   cartCheckoutBtn.addEventListener('click', () => {
+    // Auth guard: require login before checkout
+    const savedUser = JSON.parse(localStorage.getItem('auth_user'));
+    const isLoggedIn = savedUser && savedUser.name && savedUser.email && savedUser.email !== 'N/A';
+    if (!isLoggedIn) {
+      closeCartDrawer();
+      openAuthModal();
+      return;
+    }
     closeCartDrawer();
     openCheckoutModal();
   });
