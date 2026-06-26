@@ -69,13 +69,24 @@ async function db_getProducts() {
   if (error) { dbErr('getProducts', error); return JSON.parse(localStorage.getItem('products')) || []; }
 
   // Merge: Supabase is source-of-truth for core fields,
-  // but localStorage may hold richer extra fields (specs, brand, etc.)
-  // that haven't been synced to Supabase yet.
+  // but localStorage may hold richer extra fields (discount, originalPrice,
+  // newArrival, bestSeller, featured, brand, sku, specs, etc.)
+  // that may not exist as columns in Supabase yet.
   const localProducts = JSON.parse(localStorage.getItem('products')) || [];
   const merged = data.map(sbProduct => {
     const lp = localProducts.find(p => p.id != null && p.id.toString() === sbProduct.id.toString());
-    // Spread local first so Supabase core values (price, title, etc.) win
-    return lp ? { ...lp, ...sbProduct } : sbProduct;
+    if (!lp) return sbProduct;
+    // Start with local (has all enriched fields), then overlay only the Supabase
+    // fields that actually have a value (not null/undefined), so extra fields
+    // like discount and originalPrice from Supabase are preserved when present,
+    // and the local copy is kept as fallback when Supabase doesn't have them.
+    const overrides = {};
+    for (const key of Object.keys(sbProduct)) {
+      if (sbProduct[key] !== null && sbProduct[key] !== undefined) {
+        overrides[key] = sbProduct[key];
+      }
+    }
+    return { ...lp, ...overrides };
   });
 
   // Mirror merged result to localStorage as cache
