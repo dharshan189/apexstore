@@ -443,12 +443,64 @@ document.addEventListener('DOMContentLoaded', () => {
     if (catEl) catEl.value = p.category;
     if (descEl) descEl.value = p.description || "";
     if (origPriceInput) {
-      origPriceInput.value = p.price;
+      origPriceInput.value = p.originalPrice !== undefined ? p.originalPrice : p.price;
       const discountInput = document.getElementById('price-discount');
-      if (discountInput) discountInput.value = 0;
+      if (discountInput) discountInput.value = p.discount !== undefined ? p.discount : 0;
       const finalPriceEl = document.getElementById('price-final');
       if (finalPriceEl) finalPriceEl.textContent = '₹' + parseFloat(p.price).toFixed(2);
     }
+
+    // Prefill new fields
+    const brandEl = document.getElementById('new-prod-brand');
+    const skuEl = document.getElementById('sku-field');
+    const subcatEl = document.getElementById('new-prod-subcategory');
+    const matEl = document.getElementById('new-prod-material');
+    const fitEl = document.getElementById('new-prod-fit');
+    const sleeveEl = document.getElementById('new-prod-sleeve');
+    const neckEl = document.getElementById('new-prod-neck');
+    const occasionEl = document.getElementById('new-prod-occasion');
+    const originEl = document.getElementById('new-prod-origin');
+    const washEl = document.getElementById('new-prod-washing');
+    const taxEl = document.getElementById('price-tax');
+    const stockEl = document.getElementById('inventory-stock');
+    const lowStockEl = document.getElementById('inventory-low-stock');
+    const statusEl = document.getElementById('inventory-status');
+    const featEl = document.getElementById('toggle-feat');
+    const newEl = document.getElementById('toggle-new');
+    const bestEl = document.getElementById('toggle-best');
+
+    if (brandEl) brandEl.value = p.brand || "";
+    if (skuEl) skuEl.value = p.sku || "";
+    if (subcatEl) subcatEl.value = p.subcategory || "";
+    if (matEl) matEl.value = p.material || "";
+    if (fitEl) fitEl.value = p.fitType || "Oversized Fit";
+    if (sleeveEl) sleeveEl.value = p.sleeveType || "Long Sleeve";
+    if (neckEl) neckEl.value = p.neckType || "";
+    if (occasionEl) occasionEl.value = p.occasion || "";
+    if (originEl) originEl.value = p.origin || "";
+    if (washEl) washEl.value = p.washingInstructions || "";
+    if (taxEl) taxEl.value = p.tax !== undefined ? p.tax : 10;
+    if (stockEl) stockEl.value = p.stock !== undefined ? p.stock : 150;
+    if (lowStockEl) lowStockEl.value = p.lowStockAlert !== undefined ? p.lowStockAlert : 10;
+    if (statusEl) statusEl.value = p.availabilityStatus || "In Stock";
+    
+    if (featEl) featEl.checked = !!p.featured;
+    if (newEl) newEl.checked = p.newArrival !== undefined ? !!p.newArrival : true;
+    if (bestEl) bestEl.checked = !!p.bestSeller;
+
+    // Set Publishing Status Button active
+    const pubStatus = p.publishingStatus || 'Active';
+    const statusBtns = document.querySelectorAll('#status-btn-container .status-btn');
+    statusBtns.forEach(btn => {
+      const isMatch = btn.getAttribute('data-status') === pubStatus;
+      if (isMatch) {
+        btn.classList.add('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20', 'text-primary-700', 'dark:text-primary-400', 'font-semibold');
+        btn.classList.remove('border-slate-300', 'dark:border-slate-600', 'text-slate-600', 'dark:text-slate-400', 'font-medium');
+      } else {
+        btn.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20', 'text-primary-700', 'dark:text-primary-400', 'font-semibold');
+        btn.classList.add('border-slate-300', 'dark:border-slate-600', 'text-slate-600', 'dark:text-slate-400', 'font-medium');
+      }
+    });
     
     // Reset size buttons, then activate the product's saved sizes
     document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
@@ -844,6 +896,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Handle Publishing Status Buttons
+  const statusBtns = document.querySelectorAll('#status-btn-container .status-btn');
+  statusBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      statusBtns.forEach(b => {
+        b.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20', 'text-primary-700', 'dark:text-primary-400', 'font-semibold');
+        b.classList.add('border-slate-300', 'dark:border-slate-600', 'text-slate-600', 'dark:text-slate-400', 'font-medium');
+      });
+      btn.classList.add('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20', 'text-primary-700', 'dark:text-primary-400', 'font-semibold');
+      btn.classList.remove('border-slate-300', 'dark:border-slate-600', 'text-slate-600', 'dark:text-slate-400', 'font-medium');
+    });
+  });
+
   // Prevent form from ever submitting/reloading
   const addProductForm = document.getElementById('add-product-form');
   if (addProductForm) {
@@ -880,15 +945,103 @@ document.addEventListener('DOMContentLoaded', () => {
     const colors = [...selectedColors];
     const sizes  = Array.from(document.querySelectorAll('.size-btn.active')).map(btn => btn.textContent.trim());
 
+    // Gather new fields
+    const brand = document.getElementById('new-prod-brand') ? document.getElementById('new-prod-brand').value.trim() : '';
+    const sku = document.getElementById('sku-field') ? document.getElementById('sku-field').value.trim() : '';
+    const subcategory = document.getElementById('new-prod-subcategory') ? document.getElementById('new-prod-subcategory').value.trim() : '';
+    const material = document.getElementById('new-prod-material') ? document.getElementById('new-prod-material').value.trim() : '';
+    const fitType = document.getElementById('new-prod-fit') ? document.getElementById('new-prod-fit').value.trim() : '';
+    const sleeveType = document.getElementById('new-prod-sleeve') ? document.getElementById('new-prod-sleeve').value.trim() : '';
+    const neckType = document.getElementById('new-prod-neck') ? document.getElementById('new-prod-neck').value.trim() : '';
+    const occasion = document.getElementById('new-prod-occasion') ? document.getElementById('new-prod-occasion').value.trim() : '';
+    const origin = document.getElementById('new-prod-origin') ? document.getElementById('new-prod-origin').value.trim() : '';
+    const washingInstructions = document.getElementById('new-prod-washing') ? document.getElementById('new-prod-washing').value.trim() : '';
+    const originalPrice = origPriceInput ? parseFloat(origPriceInput.value) || 0 : 0;
+    const discount = discountInput ? parseFloat(discountInput.value) || 0 : 0;
+    const tax = document.getElementById('price-tax') ? parseFloat(document.getElementById('price-tax').value) || 0 : 0;
+    const stock = document.getElementById('inventory-stock') ? parseInt(document.getElementById('inventory-stock').value) || 0 : 0;
+    const lowStockAlert = document.getElementById('inventory-low-stock') ? parseInt(document.getElementById('inventory-low-stock').value) || 0 : 0;
+    const availabilityStatus = document.getElementById('inventory-status') ? document.getElementById('inventory-status').value : 'In Stock';
+    
+    let publishingStatus = 'Active';
+    const activeStatusBtn = document.querySelector('#status-btn-container .status-btn.border-primary-500');
+    if (activeStatusBtn) {
+      publishingStatus = activeStatusBtn.getAttribute('data-status');
+    }
+    
+    const featured = document.getElementById('toggle-feat') ? document.getElementById('toggle-feat').checked : false;
+    const newArrival = document.getElementById('toggle-new') ? document.getElementById('toggle-new').checked : false;
+    const bestSeller = document.getElementById('toggle-best') ? document.getElementById('toggle-best').checked : false;
+
     let product;
     if (state.editingProductId) {
       const idx = state.products.findIndex(p => p.id === state.editingProductId);
-      product = { ...state.products[idx], title, price: price.toFixed(2), category, image, images, colors, sizes, description };
+      product = { 
+        ...state.products[idx], 
+        title, 
+        price: price.toFixed(2), 
+        category, 
+        image, 
+        images, 
+        colors, 
+        sizes, 
+        description,
+        brand,
+        sku,
+        subcategory,
+        material,
+        fitType,
+        sleeveType,
+        neckType,
+        occasion,
+        origin,
+        washingInstructions,
+        originalPrice,
+        discount,
+        tax,
+        stock,
+        lowStockAlert,
+        availabilityStatus,
+        publishingStatus,
+        featured,
+        newArrival,
+        bestSeller
+      };
       if (idx > -1) state.products[idx] = product;
       state.editingProductId = null;
       document.querySelector('#view-add-product h1').textContent = 'Add New Clothing';
     } else {
-      product = { id: Date.now(), title, price: price.toFixed(2), category, image, images, colors, sizes, description };
+      product = { 
+        id: Date.now(), 
+        title, 
+        price: price.toFixed(2), 
+        category, 
+        image, 
+        images, 
+        colors, 
+        sizes, 
+        description,
+        brand,
+        sku,
+        subcategory,
+        material,
+        fitType,
+        sleeveType,
+        neckType,
+        occasion,
+        origin,
+        washingInstructions,
+        originalPrice,
+        discount,
+        tax,
+        stock,
+        lowStockAlert,
+        availabilityStatus,
+        publishingStatus,
+        featured,
+        newArrival,
+        bestSeller
+      };
       state.products.push(product);
     }
 
@@ -909,6 +1062,56 @@ document.addEventListener('DOMContentLoaded', () => {
     renderColors();
     document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
     if (finalPriceEl) finalPriceEl.textContent = '₹0.00';
+    
+    // Reset specifications & extra fields manually to defaults
+    const brandEl = document.getElementById('new-prod-brand');
+    const skuEl = document.getElementById('sku-field');
+    const subcatEl = document.getElementById('new-prod-subcategory');
+    const matEl = document.getElementById('new-prod-material');
+    const fitEl = document.getElementById('new-prod-fit');
+    const sleeveEl = document.getElementById('new-prod-sleeve');
+    const neckEl = document.getElementById('new-prod-neck');
+    const occasionEl = document.getElementById('new-prod-occasion');
+    const originEl = document.getElementById('new-prod-origin');
+    const washEl = document.getElementById('new-prod-washing');
+    const taxEl = document.getElementById('price-tax');
+    const stockEl = document.getElementById('inventory-stock');
+    const lowStockEl = document.getElementById('inventory-low-stock');
+    const statusEl = document.getElementById('inventory-status');
+    const featEl = document.getElementById('toggle-feat');
+    const newEl = document.getElementById('toggle-new');
+    const bestEl = document.getElementById('toggle-best');
+
+    if (brandEl) brandEl.value = "";
+    if (skuEl) skuEl.value = 'CLO-2026-X89';
+    if (subcatEl) subcatEl.selectedIndex = 0;
+    if (matEl) matEl.value = "100% Organic Cotton";
+    if (fitEl) fitEl.selectedIndex = 0;
+    if (sleeveEl) sleeveEl.selectedIndex = 0;
+    if (neckEl) neckEl.value = "Crew Neck";
+    if (occasionEl) occasionEl.value = "Casual Wear";
+    if (originEl) originEl.value = "Portugal";
+    if (washEl) washEl.value = "Machine wash cold. Do not tumble dry.";
+    if (taxEl) taxEl.value = 10;
+    if (stockEl) stockEl.value = 150;
+    if (lowStockEl) lowStockEl.value = 10;
+    if (statusEl) statusEl.selectedIndex = 0;
+    if (featEl) featEl.checked = false;
+    if (newEl) newEl.checked = true;
+    if (bestEl) bestEl.checked = false;
+
+    // Reset publishing status buttons to Active
+    const statusBtns = document.querySelectorAll('#status-btn-container .status-btn');
+    statusBtns.forEach(btn => {
+      const isMatch = btn.getAttribute('data-status') === 'Active';
+      if (isMatch) {
+        btn.classList.add('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20', 'text-primary-700', 'dark:text-primary-400', 'font-semibold');
+        btn.classList.remove('border-slate-300', 'dark:border-slate-600', 'text-slate-600', 'dark:text-slate-400', 'font-medium');
+      } else {
+        btn.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20', 'text-primary-700', 'dark:text-primary-400', 'font-semibold');
+        btn.classList.add('border-slate-300', 'dark:border-slate-600', 'text-slate-600', 'dark:text-slate-400', 'font-medium');
+      }
+    });
     
     switchTab('#products');
     alert('Product published successfully!');
